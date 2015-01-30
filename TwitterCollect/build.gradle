@@ -14,7 +14,7 @@ if (!hasProperty('mainClass')) {
 }
 
 dependencies {
-    compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.+'
+    compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.2'
     // TODO: Add dependencies here
     //   but note that JUnit should have already been added in parent.gradle.
     //   By default, only the Maven Central Repository is specified in
