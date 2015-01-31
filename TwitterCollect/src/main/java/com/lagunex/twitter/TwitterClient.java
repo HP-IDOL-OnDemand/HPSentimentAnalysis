@@ -8,15 +8,14 @@ package com.lagunex.twitter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
-import java.util.Properties;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
-import twitter4j.conf.Configuration;
-import twitter4j.conf.PropertyConfiguration;
+import twitter4j.TwitterObjectFactory;
 
 /**
  *
@@ -25,8 +24,16 @@ import twitter4j.conf.PropertyConfiguration;
 public class TwitterClient {
     private int maxResults = 100;
     final private Twitter twitter4j;
+    private static TwitterClient instance;
     
-    public TwitterClient() {
+    public static TwitterClient getInstance() {
+        if (instance == null) {
+            instance = new TwitterClient();
+        }
+        return instance;
+    }
+    
+    private TwitterClient() {
         try {
             twitter4j = TwitterFactory.getSingleton();
             twitter4j.getOAuth2Token();
@@ -45,15 +52,18 @@ public class TwitterClient {
     
     public List<Tweet> search(String query) {
         ArrayList<Tweet> result = new ArrayList<>();
+        this.search(query, tweet -> result.add(tweet));
+        return result;
+    }
+    
+    public void search(String query, Consumer<Tweet> consumer) {
         Query q = new Query(query);
         int tweetsFound = 0;
         while (q != null && tweetsFound < this.getMaxResults()) {
             QueryResult qr = search(q);
-            result.addAll(extractResult(qr));
+            tweetsFound += consumeResult(qr,consumer,this.getMaxResults()-tweetsFound);
             q = qr.nextQuery();
-            tweetsFound += qr.getCount();
         }
-        return result;
     }
 
     private QueryResult search(Query q) {
@@ -66,15 +76,24 @@ public class TwitterClient {
         return qr;
     }
 
-    private Collection<? extends Tweet> extractResult(QueryResult qr) {
-        ArrayList<Tweet> result = new ArrayList<>();
+    private int consumeResult(QueryResult qr, Consumer<Tweet> consumer, int maxTweets) {
         Tweet t;
+        int tweetsAdded = 0;
         for(Status s: qr.getTweets()) {
-            t = new Tweet();
-            t.setId(s.getId());
-            t.setMessage(s.getText());
-            result.add(t);
+            t = createTweet(s);
+            consumer.accept(t);
+            if (++tweetsAdded == maxTweets) break;
         }
-        return result;
+        return tweetsAdded;
+    }
+
+    private Tweet createTweet(Status s) {
+        Tweet t = new Tweet();
+        t.setId(s.getId());
+        t.setMessage(s.getText());
+        t.setLanguage(s.getLang());
+        t.setCreatedAt(s.getCreatedAt());
+        t.setJsonInfo(TwitterObjectFactory.getRawJSON(s));
+        return t;
     }
 }
