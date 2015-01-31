@@ -22,6 +22,8 @@ import static org.junit.Assert.*;
  * @author carloshq
  */
 public class TwitterClientTest {
+    TwitterClient client;
+    
     public TwitterClientTest() {
     }
     
@@ -35,6 +37,7 @@ public class TwitterClientTest {
     
     @Before
     public void setUp() throws IOException {
+        client = TwitterClient.getInstance();
     }
     
     @After
@@ -66,24 +69,34 @@ public class TwitterClientTest {
         assertNotNull(p.get("oauth.consumerKey"));
         assertNotNull(p.get("oauth.consumerSecret"));
         
-        assertEquals("true",p.get("jsonStoreEnabled"));
         assertEquals("true",p.get("enableApplicationOnlyAuth"));
         assertEquals("true",p.get("http.useSSL"));
     }
     
     @Test
     public void search() {
-        TwitterClient client = TwitterClient.getInstance();
-        
-        List<Tweet> result = client.search("$HPQ");
-        assertTrue(result.size() <= client.getMaxResults());
-    }
-    
-    @Test
-    public void searchAndConsume() {
-        TwitterClient client = TwitterClient.getInstance();
         List<Tweet> result = new ArrayList<>();
         client.search("$HPQ", tweet -> result.add(tweet));
         assertTrue(result.size() <= client.getMaxResults());
+    }
+
+    @Test
+    public void searchSince() {
+        long tweetId = 558655785975025664L;
+        List<Tweet> result = new ArrayList<>();
+        client.searchSince("$HPQ", tweetId, tweet -> result.add(tweet));
+        result.stream().forEach(t -> {
+            assertTrue(tweetId <= t.getId());
+        });
+    }
+    
+    @Test
+    public void searchUntil() {
+        long tweetId = 561472063341600768L;
+        List<Tweet> result = new ArrayList<>();
+        client.searchUntil("$HPQ", tweetId, tweet -> result.add(tweet));
+        result.stream().forEach(t -> {
+            assertTrue(tweetId >= t.getId());
+        });
     }
 }
