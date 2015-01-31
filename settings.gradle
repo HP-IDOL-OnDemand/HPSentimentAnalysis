@@ -1,1 +1,4 @@
-include 'TwitterCollect', 'IdolSentimentAnalysis', 'DataVisualization'
+include 'TwitterCollect',\
+        'IdolSentimentAnalysis',\
+        'DataVisualization',
+        'VerticaConnection'
