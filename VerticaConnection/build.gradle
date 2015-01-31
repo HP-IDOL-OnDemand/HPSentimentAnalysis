@@ -13,6 +13,13 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
+repositories {
+   flatDir {
+       dirs 'libs'
+   }
+}
+
+
 dependencies {
-    
+    compile name: 'vertica-jdbc-7.1.1-0'
 }
