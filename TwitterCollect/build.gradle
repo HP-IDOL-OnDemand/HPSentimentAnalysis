@@ -1,9 +1,10 @@
+mainClassName = 'com.lagunex.twitter.Main'
+
 dependencies {
     compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.2'
 }
 
 run.doFirst {
-    mainClassName = 'com.lagunex.twitter.Main'
     applicationDefaultJvmArgs = ["-Dtwitter4j.enableApplicationOnlyAuth=true",
         "-Dtwitter4j.http.useSSL=true"
     ]
