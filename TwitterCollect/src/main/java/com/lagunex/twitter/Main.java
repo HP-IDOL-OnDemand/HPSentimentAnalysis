@@ -22,17 +22,17 @@ import org.apache.commons.cli.ParseException;
 public class Main {
     private static final String DEFAULT_QUERY = "$HPQ";
     private static final int DEFAULT_NUMBER = 100;
-    
+
     public static void main(String[] args) {
         CommandLine cli = parseOptions(getCliOptions(),args);
-        
+
         int number = cli.hasOption('n') ? Integer.parseInt(cli.getOptionValue('n')) : DEFAULT_NUMBER;
         String query = (cli.getArgs().length == 1) ? cli.getArgs()[cli.getArgs().length-1] : DEFAULT_QUERY;
         PrintWriter pw = getPrintWriter(cli);
-        
+
         TwitterClient client = TwitterClient.getInstance();
         client.setMaxResults(number);
-		
+
 		Consumer<Tweet> consumer = tweet -> pw.println(tweet.toTblString());
 		if (cli.hasOption('s')) {
 			client.searchSince(query, Long.parseLong(cli.getOptionValue('s')), consumer);
@@ -41,11 +41,11 @@ public class Main {
 		} else {
 			client.search(query, consumer);
 		}
-        
+
         pw.flush();
         pw.close();
     }
-    
+
     private static Options getCliOptions() {
         Options options = new Options();
         options.addOption("f", "file", true, "File to output the query (defaults stdout)");
@@ -56,7 +56,7 @@ public class Main {
         options.addOption("h", "help", false, "Prints this message");
         return options;
     }
-    
+
     private static CommandLine parseOptions(Options cliOptions, String[] args) {
         CommandLineParser parser = new BasicParser();
         CommandLine cli = null;
@@ -70,7 +70,7 @@ public class Main {
         }
         return cli;
     }
-    
+
     private static void printHelpAndExit(Options options, int exitCode) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp( "java com.lagunex.twitter.Main [options] query", options );

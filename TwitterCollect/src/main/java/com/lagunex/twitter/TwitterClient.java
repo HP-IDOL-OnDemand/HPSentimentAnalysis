@@ -69,7 +69,7 @@ public class TwitterClient {
     }
     
     private void search(Query q, Consumer<Tweet> consumer) {
-	int tweetsFound = 0;
+	    int tweetsFound = 0;
         while (q != null && tweetsFound < this.getMaxResults()) {
             QueryResult qr = search(q);
             tweetsFound += consumeResult(qr,consumer,this.getMaxResults()-tweetsFound);
