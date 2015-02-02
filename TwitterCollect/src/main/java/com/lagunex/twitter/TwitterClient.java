@@ -5,8 +5,6 @@
  */
 package com.lagunex.twitter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import twitter4j.Twitter;
@@ -80,6 +78,7 @@ public class TwitterClient {
     }
 
     private QueryResult search(Query q) {
+        q.setCount(100);
         QueryResult qr = null;
         try {
             qr = twitter4j.search(q);
