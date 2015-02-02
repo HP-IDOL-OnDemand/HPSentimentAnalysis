@@ -18,10 +18,6 @@ public class Aggregate {
 
     @Override
     public String toString() {
-        return toTblString();
-    }
-    
-    public String toTblString() {
         StringBuilder sb = new StringBuilder();
         sb.append(sentiment).append(SEPARATOR)
           .append(score);
