@@ -1,0 +1,4 @@
+vertica.hostname=192.168.1.17
+vertica.database=topcoder
+vertica.username=dbadmin
+vertica.password=password

@@ -5,11 +5,15 @@
  */
 package com.lagunex.vertica;
 
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
@@ -21,6 +25,8 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
  * @author carloshq
  */
 public class Vertica {
+    private static final Logger LOGGER = Logger.getLogger(Vertica.class.getName());
+
     private static final String HOSTNAME = "vertica.hostname";
     private static final String DATABASE = "vertica.database";
     private static final String USERNAME = "vertica.username";
@@ -75,20 +81,29 @@ public class Vertica {
         String query = 
             "select aggregate_sentiment as label, count(*) as total "
             + "from tweet "
-            + "where created_at >= ? and created_at <= ? "
-            + "group by label";
+            + "where created_at >= ? and created_at < ? "
+            + "  and aggregate_sentiment is not null "
+            + "group by label "
+            + "order by label";
         
-        return getResult(query, start, end);
+        return getResult(query, getTimestamp(start), getTimestamp(end));
     }
 
     private List<Map<String, Object>> getResult(String query, Object... args) {
         List<Map<String,Object>> result = new ArrayList<>();
         try {
+            Instant begin = Instant.now();
             result = jdbcTemplate.queryForList(query, args);
+            LOGGER.log(Level.INFO, "Query duration: {0}ms", Duration.between(begin, Instant.now()).toMillis());
         } catch (DataAccessException ex) {
-            Logger.getLogger(Vertica.class.getName()).warning(ex.getMessage());
+            LOGGER.warning(ex.getMessage());
         }
         return result;
+    }
+
+    private Timestamp getTimestamp(LocalDateTime datetime) {
+        Timestamp t = Timestamp.valueOf(datetime);
+        return t;
     }
 
     public List<Map<String,Object>> getTopicTotal(LocalDateTime start, LocalDateTime end) {
@@ -96,11 +111,11 @@ public class Vertica {
             "select topic as label, count(*) as total "
             + "from tweet, sentiment "
             + "where tweet.id = sentiment.tweet_id "
-            + "  and label is not null "
-            + "  and created_at >= ? and created_at <= ? "
+            + "  and topic is not null "
+            + "  and created_at >= ? and created_at < ? "
             + "group by label";
 
-        return getResult(query, start, end);
+        return getResult(query, getTimestamp(start), getTimestamp(end));
     }
 
     public List<Map<String,Object>> getTopicTotal(String topic, LocalDateTime start, LocalDateTime end) {
@@ -109,21 +124,22 @@ public class Vertica {
             + "from tweet, sentiment "
             + "where tweet.id = sentiment.tweet_id "
             + "  and topic = ? "
-            + "  and created_at >= ? and created_at <= ? "
+            + "  and created_at >= ? and created_at < ? "
             + "group by label";
 
-        return getResult(query, topic, start, end);
+        return getResult(query, topic, getTimestamp(start), getTimestamp(end));
     }
 
     public List<Map<String, Object>> getAggregateHistogram(LocalDateTime start, LocalDateTime end) {
         String histogramClass = getHistogramClass(start, end);
 
         String query = 
-            "select aggregate_sentiment as label, "+histogramClass+" as time, avg(aggregate_score) as total"
+            "select "+histogramClass+" as time, avg(aggregate_score) as total "
             + "from tweet "
-            + "where time >= ? and time <= ? "
-            + "group by label, time";
-        return getResult(query, start, end);
+            + "where "+histogramClass+" >= ? and "+histogramClass+" < ? "
+            + "group by time "
+            + "order by time";
+        return getResult(query, getTimestamp(start), getTimestamp(end));
     }
     
     private String getHistogramClass(LocalDateTime start, LocalDateTime end) {
@@ -145,11 +161,11 @@ public class Vertica {
         String query = 
             "select topic as label, "+histogramClass+" as time, avg(aggregate_score) as total"
             + "from tweet, sentiment "
-            + "where time >= ? and time <= ? "
+            + "where time >= ? and time < ? "
             + "  and tweet.id = sentiment.tweet_id "
             + "  and topic is not null "
             + "group by label, time";
-        return getResult(query, start, end);
+        return getResult(query, getTimestamp(start), getTimestamp(end));
     }
 
     public List<Map<String, Object>> getDateRange() {
