@@ -11,7 +11,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import org.apache.commons.cli.BasicParser;
@@ -125,9 +124,14 @@ public class Main {
         SentimentAnalysis client = SentimentAnalysis.getInstance();
         String line = getNextLine();
         while(line != null) {
-            String[] tokens = line.split(SEPARATOR_REGEX); // id|opinion|language
-            SentimentResult result = client.analyse(tokens[1], new Locale(tokens[2]));
-            printResult(tokens[0],result);
+            String[] tokens = line.split(SEPARATOR_REGEX);
+            if (tokens.length >= 2) { // id|opinion|language
+                SentimentResult result = client.analyse(
+                        tokens[1], 
+                        SentimentAnalysis.Language.getLanguage(tokens[2])
+                );
+                printResult(tokens[0],result); 
+            }
             line = getNextLine();
         }
     }

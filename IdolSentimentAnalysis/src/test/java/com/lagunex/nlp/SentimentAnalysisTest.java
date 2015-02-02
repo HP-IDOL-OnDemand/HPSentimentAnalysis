@@ -5,7 +5,6 @@
  */
 package com.lagunex.nlp;
 
-import java.util.Locale;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -33,8 +32,10 @@ public class SentimentAnalysisTest {
     }
 
     @Test
-    public void analyseWithValidLocale() {
-        SentimentResult t = engine.analyse("This is a good day", Locale.ENGLISH);
+    public void analyseWithValidLanguage() {
+        SentimentResult t = engine.analyse(
+                "This is a good day", 
+                SentimentAnalysis.Language.English);
         assertNotNull(t);
         assertNotNull(t.getPositive());
         assertNotNull(t.getNegative());
@@ -42,8 +43,8 @@ public class SentimentAnalysisTest {
     }
 
     @Test
-    public void analyseWithInvalidLocale() {
-        SentimentResult t = engine.analyse("This is a good day", Locale.JAPANESE);
+    public void analyseWithNullLanguage() {
+        SentimentResult t = engine.analyse("This is a good day", null);
         assertNull(t);
     }
 }

@@ -9,11 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -29,11 +25,36 @@ public class SentimentAnalysis {
     private static SentimentAnalysis instance;
     private final String API_KEY;
     
-    private final List<Locale> LANGS = Arrays.asList(new Locale[]{
-        Locale.ENGLISH, new Locale("es"), Locale.FRENCH, Locale.GERMAN,
-        Locale.ITALIAN, Locale.CHINESE, new Locale("por"), new Locale("dut"),
-        new Locale("rus"), new Locale("cze"), new Locale("tur")
-    });
+    public enum Language {
+        English("en", "eng"),
+        French("fr", "fre"),
+        Spanish("es", "spa"),
+        German("de", "ger"),
+        Italian("it", "ita"),
+        Chinese("zh", "chi"),
+        Portuguese("pt", "por"),
+        Dutch("nl", "dut"),
+        Russian("ru", "rus"),
+        Czech("cs", "cze"),
+        Turkish("tr", "tur");
+
+        private final String code, longCode;
+        Language(String code, String longCode) {
+            this.code = code;
+            this.longCode = longCode;
+        }
+
+        static Language getLanguage(String code) {
+            Language lang = null;
+            for(Language candidate: Language.values()) {
+                if (candidate.code.equals(code)) {
+                    lang = candidate;
+                    break;
+                }
+            }
+            return lang;
+        }
+    }
 
     public static SentimentAnalysis getInstance() {
         if (instance == null) {
@@ -64,13 +85,13 @@ public class SentimentAnalysis {
     }
 
     public SentimentResult analyse(String opinion) {
-        return analyse(opinion, Locale.ENGLISH);
+        return analyse(opinion, Language.English);
     }
 
-    public SentimentResult analyse(String opinion, Locale locale) {
+    public SentimentResult analyse(String opinion, Language lang) {
         opinion = encode(opinion);
-        if (opinion != null && LANGS.contains(locale)) {
-            return callRestApi(opinion, locale.getISO3Language());
+        if (opinion != null && lang != null) {
+            return callRestApi(opinion, lang.longCode);
         } else {
             return null;
         }
