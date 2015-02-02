@@ -70,7 +70,18 @@ public class Main {
 
     private void printHelpAndExit(Options options, int exitCode) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp( "java com.lagunex.twitter.Main [options] query", options );
+        PrintWriter err = new PrintWriter(System.err);
+        formatter.printHelp(
+                err,
+                HelpFormatter.DEFAULT_WIDTH,
+                "java com.lagunex.twitter.Main [options] query",
+                "",
+                options,
+                HelpFormatter.DEFAULT_LEFT_PAD,
+                HelpFormatter.DEFAULT_DESC_PAD,
+                "");
+        err.flush();
+        err.close();
         System.exit(exitCode);
     }
     
