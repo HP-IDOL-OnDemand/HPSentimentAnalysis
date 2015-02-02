@@ -20,35 +20,63 @@ import org.apache.commons.cli.ParseException;
  * @author carloshq
  */
 public class Main {
-    private static final String DEFAULT_QUERY = "$HPQ";
-    private static final int DEFAULT_NUMBER = 100;
+    private final String DEFAULT_QUERY = "$HPQ";
+    private final int DEFAULT_NUMBER = 100;
 
+    private final String query;
+    private final int number;
+    private final PrintWriter output;
+    private final TwitterClient client;
+    private final long sinceId;
+    private final long maxId;
+    
     public static void main(String[] args) {
-        CommandLine cli = parseOptions(getCliOptions(),args);
-
-        int number = cli.hasOption('n') ? Integer.parseInt(cli.getOptionValue('n')) : DEFAULT_NUMBER;
-        String query = (cli.getArgs().length == 1) ? cli.getArgs()[cli.getArgs().length-1] : DEFAULT_QUERY;
-        PrintWriter pw = getPrintWriter(cli);
-
-        TwitterClient client = TwitterClient.getInstance();
-        client.setMaxResults(number);
-
-		Consumer<Tweet> consumer = tweet -> pw.println(tweet.toTblString());
-		if (cli.hasOption('s')) {
-			client.searchSince(query, Long.parseLong(cli.getOptionValue('s')), consumer);
-		} else if (cli.hasOption('u')) {
-			client.searchUntil(query, Long.parseLong(cli.getOptionValue('u')), consumer);
-		} else {
-			client.search(query, consumer);
-		}
-
-        pw.flush();
-        pw.close();
+        Main main = new Main(args);
+        main.queryTwitter();
+        main.closeResources();
     }
 
-    private static Options getCliOptions() {
+    public Main(String[] args) {
+        CommandLine cli = parseOptions(getCliOptions(),args);
+        
+        sinceId = cli.hasOption('s') ? Long.parseLong(cli.getOptionValue('s')) : 0L;
+        maxId = cli.hasOption('u') ? Long.parseLong(cli.getOptionValue('u')) : 0L;
+
+        number = cli.hasOption('n') ? Integer.parseInt(cli.getOptionValue('n')) : DEFAULT_NUMBER;
+        query = (cli.getArgs().length == 1) ? cli.getArgs()[cli.getArgs().length-1] : DEFAULT_QUERY;
+        output = getPrintWriter(cli);
+
+        client = TwitterClient.getInstance();
+        client.setMaxResults(number);
+    }
+
+    private CommandLine parseOptions(Options cliOptions, String[] args) {
+        CommandLineParser parser = new BasicParser();
+        CommandLine cli = null;
+        try {
+            cli = parser.parse(cliOptions, args);
+            if (cli.hasOption("h") || cli.getArgs().length > 1) {
+                printHelpAndExit(cliOptions,0);
+            } else if (cli.hasOption('s') && cli.hasOption('u')) {
+                System.err.println("Cannot specified both --since and --until");
+                printHelpAndExit(cliOptions, -1);
+            }
+        } catch (ParseException ex) {
+            System.err.println(ex.getMessage());
+            printHelpAndExit(cliOptions,-1);
+        }
+        return cli;
+    }
+
+    private void printHelpAndExit(Options options, int exitCode) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp( "java com.lagunex.twitter.Main [options] query", options );
+        System.exit(exitCode);
+    }
+    
+    private Options getCliOptions() {
         Options options = new Options();
-        options.addOption("f", "file", true, "File to output the query (defaults stdout)");
+        options.addOption("o", "output", true, "Output file (default stdout)");
         options.addOption("n", "numberOfTweets", true, "Maximum number of Tweets to retrieve");
 		options.addOption("s", "since", true, "Search results since given tweet");
         options.addOption("u", "until", true, "Search results until given tweet");
@@ -57,31 +85,11 @@ public class Main {
         return options;
     }
 
-    private static CommandLine parseOptions(Options cliOptions, String[] args) {
-        CommandLineParser parser = new BasicParser();
-        CommandLine cli = null;
-        try {
-            cli = parser.parse(cliOptions, args);
-            if (cli.hasOption("h") || cli.getArgs().length > 1) {
-                printHelpAndExit(cliOptions,0);
-            }
-        } catch (ParseException ex) {
-            printHelpAndExit(cliOptions,1);
-        }
-        return cli;
-    }
-
-    private static void printHelpAndExit(Options options, int exitCode) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp( "java com.lagunex.twitter.Main [options] query", options );
-        System.exit(exitCode);
-    }
-
-    private static PrintWriter getPrintWriter(CommandLine cli) {
+    private PrintWriter getPrintWriter(CommandLine cli) {
         PrintWriter pw = null;
-        if (cli.hasOption('f')) {
+        if (cli.hasOption('o')) {
             try {
-                pw = new PrintWriter(cli.getOptionValue('f'));
+                pw = new PrintWriter(cli.getOptionValue('o'));
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -89,5 +97,21 @@ public class Main {
             pw = new PrintWriter(System.out);
         }
         return pw;
+    }
+
+    private void queryTwitter() {
+        Consumer<Tweet> consumer = tweet -> output.println(tweet);
+		if (sinceId > 0) {
+			client.searchSince(query, sinceId, consumer);
+		} else if (maxId > 0) {
+			client.searchUntil(query, maxId, consumer);
+		} else {
+			client.search(query, consumer);
+		}
+    }
+
+    private void closeResources() {
+        output.flush();
+        output.close();
     }
 }
