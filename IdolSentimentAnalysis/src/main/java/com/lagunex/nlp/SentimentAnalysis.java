@@ -7,10 +7,15 @@ package com.lagunex.nlp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -18,8 +23,10 @@ import org.springframework.web.client.RestTemplate;
  * @author carloshq
  */
 public class SentimentAnalysis {
-    private static SentimentAnalysis instance;
     private static final String URL = "https://api.idolondemand.com/1/api/sync/analyzesentiment/v1";
+    private static final Logger LOGGER = Logger.getLogger(SentimentAnalysis.class.getName());
+    
+    private static SentimentAnalysis instance;
     private final String API_KEY;
     
     private final List<Locale> LANGS = Arrays.asList(new Locale[]{
@@ -37,9 +44,6 @@ public class SentimentAnalysis {
     
     private SentimentAnalysis(){
         API_KEY = getApiKey();
-        if (API_KEY == null) {
-            throw new RuntimeException("No API key found"); 
-        }
     }
 
     private String getApiKey() {
@@ -53,6 +57,9 @@ public class SentimentAnalysis {
             }
         } catch (IOException e) {
         }
+        if (apiKey == null) {
+            throw new RuntimeException("property idolOnDemand.apiKey not defined");
+        }
         return apiKey;
     }
 
@@ -61,18 +68,34 @@ public class SentimentAnalysis {
     }
 
     public SentimentResult analyse(String opinion, Locale locale) {
-        if (LANGS.contains(locale)) {
-            return analyse(opinion, locale.getISO3Language());
+        opinion = encode(opinion);
+        if (opinion != null && LANGS.contains(locale)) {
+            return callRestApi(opinion, locale.getISO3Language());
         } else {
             return null;
         }
     }
 
-    private SentimentResult analyse(String opinion, String lang) {
+    private String encode(String opinion) {
+        String encoded = null;
+        try {
+            encoded = URLEncoder.encode(opinion, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            LOGGER.warning(ex.getMessage());
+        } 
+        return encoded;
+    }
+
+    private SentimentResult callRestApi(String opinion, String lang) {
+        SentimentResult result = null;
         RestTemplate rest = new RestTemplate();
-        return rest.getForObject(
+        try {
+            result = rest.getForObject(
                 URL+"?apikey="+this.API_KEY+"&text="+opinion+"&language="+lang,
-                SentimentResult.class 
-        );
+                SentimentResult.class); 
+        } catch (RestClientException ex) {
+            LOGGER.warning(ex.getMessage());
+        }
+        return result;
     }
 }
