@@ -5,7 +5,8 @@
  */
 package com.lagunex.twitter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import twitter4j.Status;
 
 /**
@@ -18,18 +19,14 @@ public class Tweet {
     
     private final long id;
     private final String message;
-    private final Date createdAt;
+    private final LocalDateTime createdAt;
     private final String language;
 
     public Tweet(Status s) {
 	    id = s.getId();
         message = s.getText().replace(RESERVED_CHAR, RESERVED_CHAR_REPLACEMENT);
         language = s.getLang();
-        createdAt = s.getCreatedAt();
-    }
-    
-    public String toTblString() {
-        return toString().replace('\n', ' ');
+        createdAt = LocalDateTime.ofInstant(s.getCreatedAt().toInstant(),ZoneOffset.UTC);
     }
     
     @Override
@@ -39,7 +36,7 @@ public class Tweet {
           .append(getMessage()).append(RESERVED_CHAR)
           .append(getLanguage()).append(RESERVED_CHAR)
           .append(getCreatedAt());
-        return sb.toString();
+        return sb.toString().replace('\n', ' ');
     }
     
     public long getId() {
@@ -54,7 +51,7 @@ public class Tweet {
         return language;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 }
