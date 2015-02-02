@@ -18,11 +18,6 @@ public class SentimentAnalysisTest {
 
     SentimentAnalysis engine;
     
-    @Before
-    public void setup() {
-        engine = SentimentAnalysis.getInstance();
-    }
-    
     @Test
     public void analyse() {
         SentimentResult t = engine.analyse("This is a good day");
