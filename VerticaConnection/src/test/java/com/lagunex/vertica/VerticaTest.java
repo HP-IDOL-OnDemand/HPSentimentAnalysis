@@ -6,7 +6,6 @@
 package com.lagunex.vertica;
 
 import java.io.InputStream;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
