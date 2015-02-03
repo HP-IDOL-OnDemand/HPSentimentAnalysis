@@ -26,13 +26,13 @@ import org.apache.commons.cli.ParseException;
  */
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-    
+
     private final String SEPARATOR_REGEX="\\|";
     private final char DEFAULT_SEPARATOR = '|';
 
     private final BufferedReader input;
     private final PrintWriter output;
-    
+
     public static void main(String[] args) {
         Main main = new Main(args);
         main.analyseInput();
@@ -47,7 +47,7 @@ public class Main {
         output = getPrintWriter(cli);
         if (input == null || output == null) printHelpAndExit(opt, -1);
     }
-    
+
     private Options getCliOptions() {
         Options options = new Options();
         options.addOption("i", "input", true, "Input file with opinions (default stdin)");
@@ -84,7 +84,8 @@ public class Main {
                 options,
                 HelpFormatter.DEFAULT_LEFT_PAD,
                 HelpFormatter.DEFAULT_DESC_PAD,
-                "");
+                ""
+        );
         err.flush();
         err.close();
         System.exit(exitCode);
@@ -100,11 +101,11 @@ public class Main {
                 LOGGER.severe(ex.getMessage());
             }
         } else {
-           br = new BufferedReader(new InputStreamReader(System.in)); 
+           br = new BufferedReader(new InputStreamReader(System.in));
         }
         return br;
     }
-    
+
     private PrintWriter getPrintWriter(CommandLine cli) {
         PrintWriter pw = null;
         if (cli.hasOption('o')) {
@@ -119,19 +120,17 @@ public class Main {
         }
         return pw;
     }
-    
+
     private void analyseInput() {
         SentimentAnalysis client = SentimentAnalysis.getInstance();
         String line = getNextLine();
         while(line != null) {
             String[] tokens = line.split(SEPARATOR_REGEX);
-            if (tokens.length >= 2) { // id|opinion|language
-                SentimentResult result = client.analyse(
-                        tokens[1], 
-                        SentimentAnalysis.Language.getLanguage(tokens[2])
-                );
-                printResult(tokens[0],result); 
-            }
+            SentimentResult result = client.analyse(
+                tokens[1],
+                SentimentAnalysis.Language.getLanguage(tokens[2])
+            );
+            printResult(tokens[0],result);
             line = getNextLine();
         }
     }
@@ -145,17 +144,19 @@ public class Main {
         }
         return line;
     }
-    
+
     private void printResult(String id, SentimentResult result) {
-        Consumer<Object> print = o -> output.printf("%s%c%s%n", id, DEFAULT_SEPARATOR, o); 
+        Consumer<Object> print = o -> output.printf("%s%c%s%n", id, DEFAULT_SEPARATOR, o);
         if (result != null) {
             print.accept(result.getAggregate());
             result.getPositive().forEach(print);
             result.getNegative().forEach(print);
+        } else {
+            output.println();
         }
         System.err.print('.');
     }
-    
+
     private void flushAndCloseResources() {
         try { input.close(); } catch (Exception e) { LOGGER.warning(e.getMessage()); }
         output.flush();
