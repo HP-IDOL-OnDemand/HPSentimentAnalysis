@@ -11,6 +11,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -106,28 +108,28 @@ public class Vertica {
         return t;
     }
 
-    public List<Map<String,Object>> getTopicTotal(LocalDateTime start, LocalDateTime end) {
+    public List<Map<String,Object>> getSentimentTotal(LocalDateTime start, LocalDateTime end) {
         String query =
-            "select topic as label, count(*) as total "
+            "select sentiment as label, count(*) as total "
             + "from tweet, sentiment "
             + "where tweet.id = sentiment.tweet_id "
-            + "  and topic is not null "
+            + "  and sentiment is not null "
             + "  and created_at >= ? and created_at < ? "
             + "group by label";
 
         return getResult(query, getTimestamp(start), getTimestamp(end));
     }
 
-    public List<Map<String,Object>> getTopicTotal(String topic, LocalDateTime start, LocalDateTime end) {
+    public List<Map<String,Object>> getSentimentTotal(String sentiment, LocalDateTime start, LocalDateTime end) {
         String query =
             "select aggregate_sentiment as label, count(*) as total "
             + "from tweet, sentiment "
             + "where tweet.id = sentiment.tweet_id "
-            + "  and topic = ? "
+            + "  and sentiment = ? "
             + "  and created_at >= ? and created_at < ? "
             + "group by label";
 
-        return getResult(query, topic, getTimestamp(start), getTimestamp(end));
+        return getResult(query, sentiment, getTimestamp(start), getTimestamp(end));
     }
 
     public List<Map<String, Object>> getAggregateHistogram(LocalDateTime start, LocalDateTime end) {
@@ -168,10 +170,18 @@ public class Vertica {
         return getResult(query, getTimestamp(start), getTimestamp(end));
     }
 
-    public List<Map<String, Object>> getDateRange() {
+    public Map<String, LocalDateTime> getDateRange() {
         String query =
             "select min(created_at) as begin, max(created_at) as end "
             + "from tweet";
-        return getResult(query);
+
+        Map<String, Object> result = getResult(query).get(0);
+
+        HashMap<String, LocalDateTime> dates = new HashMap<>();
+        dates.put("begin", LocalDateTime.ofInstant(
+                ((Date)result.get("begin")).toInstant(), ZoneOffset.UTC));
+        dates.put("end", LocalDateTime.ofInstant(
+                ((Date)result.get("end")).toInstant(), ZoneOffset.UTC));
+        return dates;
     }
 }

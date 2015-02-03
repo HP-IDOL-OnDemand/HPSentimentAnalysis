@@ -14,6 +14,7 @@ import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  *
@@ -44,15 +45,10 @@ public class VerticaTest {
 
     @Test
     public void getDateRange() {
-        List<Map<String,Object>> result = vertica.getDateRange();
+        Map<String,LocalDateTime> result = vertica.getDateRange();
 
-        assertTrue(result.size()==1);
-        
-        assertNotNull(result.get(0).get("begin"));
-        assertTrue(result.get(0).get("begin") instanceof java.sql.Timestamp);
-        
-        assertNotNull(result.get(0).get("end"));
-        assertTrue(result.get(0).get("end") instanceof java.sql.Timestamp);
+        assertNotNull(result.get("begin"));
+        assertNotNull(result.get("end"));
     } 
 
     @Test
@@ -69,6 +65,7 @@ public class VerticaTest {
     }
 
     @Test
+    @Ignore
     public void getAggregateHistogramDuringOneHourOrMore() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 6, 30);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 7, 30);
@@ -83,6 +80,7 @@ public class VerticaTest {
     }
 
     @Test
+    @Ignore
     public void getAggregateHistogramDuringLessThanOneHour() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 7, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 7, 50);
