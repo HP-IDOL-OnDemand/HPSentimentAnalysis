@@ -1,11 +1,7 @@
-repositories {
-   flatDir {
-       dirs 'libs'
-   }
-}
+apply plugin: 'maven'
 
 dependencies {
-    compile name: 'vertica-jdbc-7.1.1-0'
+    compile group: 'com.vertica', name: 'vertica-jdbc', version:'7.1.1.0'
     compile 'org.springframework:spring-jdbc:4.1.4.RELEASE'
 }
 
