@@ -11,6 +11,9 @@ in your local Maven repository.
 
 `./build.gradle` includes a task to do it automatically for you (it runs every time).
 
+If you want to skip this task because the driver is already installed, for instance during testing,
+you can do so running `gradle test -x installJdbcLocally`
+
 TEST REQUIREMENTS
 =================
 
