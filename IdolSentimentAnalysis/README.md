@@ -6,23 +6,19 @@ IBM IdolOnDemand's API.
 
 The standalone application expects input with the following format:
 
-`
-0|the text you want to analyse
-1|another text
-2|I like this format
-3|but I don't like that the example is just four lines long
-`
+    0|the text you want to analyse
+    1|another text
+    2|I like this format
+    3|but I don't like that the example is just four lines long
 
 It analyses each line independently. The output produced has the following format:
 
-`
-0|neutral|0.0
-
-2|positive|0.75
-2|like|format|0.75
-3|negative|-0.4
-3|don't like|null|-0.4
-`
+    0|neutral|0.0
+    
+    2|positive|0.75
+    2|like|format|0.75
+    3|negative|-0.4
+    3|don't like|null|-0.4
 
 The sentiment analysis tool provides a summary (if it is a neutral, positive or negative text and a score) and,
 in case it wasn't a neutral opinion, it provides the sentiments related with it with the form
@@ -56,9 +52,7 @@ RUN
 
 Once installed,
 
-`
-JAVA_OPTS="-DidolOnDemand.apiKey=your-api-key" \
-IdolSentimentAnalysis/build/install/IdolSentimentAnalysis/bin/IdolSentimentAnalysis -h
-`
+    JAVA_OPTS="-DidolOnDemand.apiKey=your-api-key" \
+    IdolSentimentAnalysis/build/install/IdolSentimentAnalysis/bin/IdolSentimentAnalysis -h
 
 This projected is licensed under the terms of the MIT license.

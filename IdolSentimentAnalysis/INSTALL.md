@@ -18,7 +18,5 @@ or pass it at runtime as a `-D` system property.
 RUN
 ===
 
-`
-JAVA_OPTS="-DidolOnDemand.apiKey=your-api-key" \
-IdolSentimentAnalysis/build/install/IdolSentimentAnalysis/bin/IdolSentimentAnalysis -h
-`
+    JAVA_OPTS="-DidolOnDemand.apiKey=your-api-key" \
+    IdolSentimentAnalysis/build/install/IdolSentimentAnalysis/bin/IdolSentimentAnalysis -h

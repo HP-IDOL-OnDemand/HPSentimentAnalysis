@@ -14,6 +14,7 @@ HPSentimentAnalysis is a Java project with four indenpendent subsystems:
 4. DataVisualization: A standalone java system that uses VerticaConnection to create visual representations of the data.
 
 For further information, each subsystem include the following files:
+
 - README.md: Describes the subsystem functionality
 - INSTALL.md: Describes the main gradle tasks to run the subsystem.
 - LICENCE.md
