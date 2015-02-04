@@ -17,9 +17,3 @@ dependencies {
     compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
     testCompile group: 'junit', name: 'junit', version: '4.10'
 }
-
-run.doFirst {
-    if (project.hasProperty('mainClass')) mainClassName = project.mainClass
-    if (project.hasProperty('xArgs')) args(project.xArgs.split(' '))
-    if (project.hasProperty('xJvmArgs')) jvmArgs(project.xJvmArgs.split(' '))
-}
