@@ -2,3 +2,4 @@
 .nb-gradle
 build/
 *.properties
+.nb-gradle-properties
