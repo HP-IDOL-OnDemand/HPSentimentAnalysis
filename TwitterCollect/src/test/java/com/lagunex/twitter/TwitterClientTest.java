@@ -15,24 +15,9 @@ import static org.junit.Assert.*;
 public class TwitterClientTest {
     TwitterClient client;
     
-    public TwitterClientTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
     @Before
     public void setUp() throws IOException {
         client = TwitterClient.getInstance();
-    }
-    
-    @After
-    public void tearDown() {
     }
     
     @Test
@@ -55,13 +40,23 @@ public class TwitterClientTest {
     
     @Test
     public void mandatoryPropertiesAreDefined() {
-        Properties p = loadProperties();
+        Properties file = loadProperties();
+        Properties system = System.getProperties();
         
-        assertNotNull(p.get("oauth.consumerKey"));
-        assertNotNull(p.get("oauth.consumerSecret"));
-        
-        assertEquals("true",p.get("enableApplicationOnlyAuth"));
-        assertEquals("true",p.get("http.useSSL"));
+        assertTrue(file.containsKey("oauth.consumerKey") || system.containsKey("twitter4j.oauth.consumerKey"));
+        assertTrue(file.containsKey("oauth.consumerSecret") || system.containsKey("twitter4j.oauth.consumerSecret"));
+        assertTrue(file.containsKey("http.useSSL") || system.containsKey("twitter4j.http.useSSL"));
+        assertTrue(file.containsKey("enableApplicationOnlyAuth") ||
+                system.containsKey("twitter4j.enableApplicationOnlyAuth")
+        );
+
+        Object prop = file.containsKey("enableApplicationOnlyAuth") ?
+                file.get("enableApplicationOnlyAuth") : system.get("twitter4j.enableApplicationOnlyAuth");
+        assertEquals("true",prop);
+
+        prop = file.containsKey("http.useSSL") ?
+                file.get("http.useSSL").toString() : system.get("twitter4j.http.useSSL").toString(); 
+        assertEquals("true",prop);
     }
     
     @Test
