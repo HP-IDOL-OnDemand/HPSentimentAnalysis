@@ -121,7 +121,6 @@ public class MainController implements Initializable {
                 updateQueryStatus(stopProgress(now));
             });
             result.setOnFailed(worker -> {
-                worker.getSource().getException().printStackTrace();
                 errorStatus(worker.getSource().getException().getLocalizedMessage());
             });
             

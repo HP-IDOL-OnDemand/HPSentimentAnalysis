@@ -42,7 +42,7 @@ class TweetPopup {
     }
 
     void showTweetsWithTime(String text) {
-        Task task = new Task<List<Map<String,Object>>>(){
+        Task<List<Map<String,Object>>> task = new Task(){
             @Override
             protected List<Map<String,Object>> call() throws Exception {
                 return vertica.getTweetsWithTime(text);
@@ -65,7 +65,7 @@ class TweetPopup {
     }
 
     private void showTweetsWithAggregate(String text, LocalDateTime start, LocalDateTime end) {
-        Task task = new Task<List<Map<String,Object>>>(){
+        Task<List<Map<String,Object>>> task = new Task(){
             @Override
             protected List<Map<String,Object>> call() throws Exception {
                 return vertica.getTweetsWithAggregate(text, start, end);
@@ -76,7 +76,7 @@ class TweetPopup {
     }
     
     private void showTweetsWithSentiment(String text, LocalDateTime start, LocalDateTime end) {
-        Task task = new Task<List<Map<String,Object>>>(){
+        Task<List<Map<String,Object>>> task = new Task(){
             @Override
             protected List<Map<String,Object>> call() throws Exception {
                 return vertica.getTweetsWithSentiment(text, start, end);
