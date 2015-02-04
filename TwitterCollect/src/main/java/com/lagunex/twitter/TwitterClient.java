@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.twitter;
 
 import java.util.function.Consumer;
@@ -14,10 +9,6 @@ import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
-/**
- *
- * @author carloshq
- */
 public class TwitterClient {
     private static final Logger LOGGER = Logger.getLogger(TwitterClient.class.getName());
     

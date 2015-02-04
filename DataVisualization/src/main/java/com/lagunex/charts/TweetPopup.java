@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.charts;
 
 import com.lagunex.vertica.Vertica;
@@ -15,10 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 
-/**
- *
- * @author carloshq
- */
 class TweetPopup {
     private final Vertica vertica;
     private final Stage stage;

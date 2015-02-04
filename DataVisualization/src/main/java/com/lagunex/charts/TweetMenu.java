@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.charts;
 
 import java.time.LocalDateTime;
@@ -12,10 +7,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.text.Text;
 
-/**
- *
- * @author carloshq
- */
 public class TweetMenu {
 
     private final ResourceBundle bundle;

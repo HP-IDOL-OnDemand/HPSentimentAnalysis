@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.app;
 
 import com.lagunex.charts.ChartResult;
@@ -27,10 +22,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
-/**
- *
- * @author carloshq
- */
 public class MainController implements Initializable {
     
     @FXML private TextField dateStartHour;

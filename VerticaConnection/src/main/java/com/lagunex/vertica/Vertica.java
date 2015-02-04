@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.vertica;
 
 import java.sql.Timestamp;
@@ -20,10 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-/**
- *
- * @author carloshq
- */
 public class Vertica {
     private static final Logger LOGGER = Logger.getLogger(Vertica.class.getName());
 

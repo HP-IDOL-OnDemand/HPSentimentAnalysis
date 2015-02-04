@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.twitter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import twitter4j.Status;
 
-/**
- *
- * @author carloshq
- */
 public class Tweet {
     private static final char RESERVED_CHAR = '|';
     private static final char RESERVED_CHAR_REPLACEMENT = ' ';

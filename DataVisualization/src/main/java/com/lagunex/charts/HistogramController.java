@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.charts;
 
 import java.net.URL;
@@ -23,10 +18,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.text.Text;
 
-/**
- *
- * @author carloshq
- */
 public class HistogramController implements Initializable, ChartController {
     @FXML protected LineChart<String, Number> chart; 
     @FXML protected TableView<Map<String,Object>> table;

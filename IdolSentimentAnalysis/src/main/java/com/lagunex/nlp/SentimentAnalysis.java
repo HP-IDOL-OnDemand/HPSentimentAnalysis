@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.lagunex.nlp;
 
 import java.io.IOException;
@@ -14,10 +9,6 @@ import java.util.logging.Logger;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-/**
- *
- * @author carloshq
- */
 public class SentimentAnalysis {
     private static final String URL = "https://api.idolondemand.com/1/api/sync/analyzesentiment/v1";
     private static final Logger LOGGER = Logger.getLogger(SentimentAnalysis.class.getName());
