@@ -4,6 +4,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import twitter4j.Status;
 
+/**
+ * Class that represents a Tweet.
+ * 
+ * This class encapsulates the implementation from twitter4j.Status
+ * It can be extended to capture more information.
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class Tweet {
     private static final char RESERVED_CHAR = '|';
     private static final char RESERVED_CHAR_REPLACEMENT = ' ';
@@ -20,6 +28,10 @@ public class Tweet {
         createdAt = LocalDateTime.ofInstant(s.getCreatedAt().toInstant(),ZoneOffset.UTC);
     }
     
+    /**
+     * 
+     * @return id|message|language|createdAt 
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

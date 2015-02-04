@@ -66,8 +66,9 @@ public class TwitterClientTest {
     
     @Test
     public void search() {
+        String sampleQuery = "$HPQ -filter:retweets"; // https://dev.twitter.com/rest/public/search
         List<Tweet> result = new ArrayList<>();
-        client.search("$HPQ", tweet -> result.add(tweet));
+        client.search(sampleQuery, tweet -> result.add(tweet));
         assertTrue(result.size() <= client.getMaxResults());
     }
 
@@ -77,7 +78,7 @@ public class TwitterClientTest {
         List<Tweet> result = new ArrayList<>();
         client.searchSince("$HPQ", tweetId, tweet -> result.add(tweet));
         result.stream().forEach(t -> {
-            assertTrue(tweetId <= t.getId());
+            assertTrue(tweetId < t.getId());
         });
     }
     

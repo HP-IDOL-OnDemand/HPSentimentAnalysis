@@ -2,6 +2,13 @@ package com.lagunex.nlp;
 
 import java.util.List;
 
+/**
+ * Class that represents an Sentiment Analysis Response of IdolOnDemand's analyzesentiment API
+ * 
+ * https://www.idolondemand.com/developer/apis/analyzesentiment#response
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class SentimentResult {
     private List<Sentiment> positive;
     private List<Sentiment> negative;

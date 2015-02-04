@@ -52,7 +52,7 @@
                   <TextField fx:id="dateEndMinute" alignment="CENTER" maxWidth="40.0" minWidth="40.0" onKeyTyped="#validateInputLength" text="00" />
                </children>
             </FlowPane>
-            <Button fx:id="updateCharts" mnemonicParsing="false" onAction="#updateCharts" text="%chart.update" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#updateCharts" text="%chart.update" GridPane.columnIndex="4" GridPane.rowIndex="2" />
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

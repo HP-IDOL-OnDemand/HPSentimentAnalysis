@@ -14,7 +14,6 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
@@ -22,6 +21,14 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
+/**
+ * Controller for the GUI defined in the resource file com.lagunex.app.main.fxml
+ * 
+ * It handles the times provided by the user and updates the charts,
+ * status bar and progress bar accordingly.
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class MainController implements Initializable {
     
     @FXML private TextField dateStartHour;
@@ -29,8 +36,6 @@ public class MainController implements Initializable {
     
     @FXML private TextField dateEndHour;
     @FXML private TextField dateEndMinute;
-
-    @FXML private Button updateCharts;
 
     @FXML private TabPane chartTabs;
 
@@ -42,6 +47,9 @@ public class MainController implements Initializable {
     
     private ResourceBundle bundle;
 
+    /**
+     * Model object to retrieve data from the Vertica database
+     */
     private final Vertica vertica = Vertica.getInstance();
     
     @Override
@@ -51,6 +59,9 @@ public class MainController implements Initializable {
         updateCharts();
     }
 
+    /**
+     * Queries Vertica to retrieve the minimum and maximum creation times of tweets
+     */
     private void initTimes() {
         long now = startProgress();
         Map<String, LocalDateTime> times = vertica.getDateRange();
@@ -72,6 +83,12 @@ public class MainController implements Initializable {
         return System.currentTimeMillis();
     }
 
+    /**
+     * 
+     * @param start instant in milliseconds whena given task began.
+     *              Usually given by a call to this.startProgress()
+     * @return milliseconds passed between now and start 
+     */
     private long stopProgress(long start) {
         progressBar.setProgress(1);
         return System.currentTimeMillis()-start;
@@ -83,15 +100,27 @@ public class MainController implements Initializable {
         status.setText(bundle.getString("status.time")+milliseconds);
     }
     
+    /**
+     * Only numbers are allowed as input and the total length cannot be larger than 2
+     * @param event 
+     */
     @FXML
     protected void validateInputLength(KeyEvent event) {
         TextField source = (TextField) event.getSource();
         char digit = event.getCharacter().length() > 0 ? event.getCharacter().charAt(0) : 0;
-        if (source.getText().length() >= 2 || digit < '0' || digit > '9') {
-            event.consume();
+        if (isInvalid(source.getText(), digit)) {
+            event.consume(); // consume the event and stop its further process
         }
     }
 
+    private boolean isInvalid(String oldInput, char newChar) {
+       return oldInput.length() >= 2 || newChar < '0' || newChar > '9';
+    }
+
+    /**
+     * ActionListener bind in main.fxml
+     * @param event 
+     */
     @FXML
     protected void updateCharts(ActionEvent event) {
         updateCharts();
@@ -107,6 +136,8 @@ public class MainController implements Initializable {
             long now = startProgress();
             
             Task<List<ChartResult>> result = queryVertica(queryBegin, queryEnd);
+            new Thread(result).start(); // process query in background to not overload the main thread
+            
             result.setOnSucceeded(worker->{
                 updateUI(result.getValue());
                 updateQueryStatus(stopProgress(now));
@@ -114,8 +145,6 @@ public class MainController implements Initializable {
             result.setOnFailed(worker -> {
                 errorStatus(worker.getSource().getException().getLocalizedMessage());
             });
-            
-            new Thread(result).start();
         } catch (Exception e) {
             errorStatus(e.getLocalizedMessage());
         } 
@@ -128,6 +157,15 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * The List returned has the same order as the tabs in the UI for easier
+     * coupling (see this.updateUI())
+     * 
+     * @param begin
+     * @param end
+     * @return Task with instructions to generate the charts in background
+     * @throws Exception 
+     */
     private Task<List<ChartResult>> queryVertica(LocalDateTime begin, LocalDateTime end) throws Exception {
         return new Task<List<ChartResult>>(){
             @Override

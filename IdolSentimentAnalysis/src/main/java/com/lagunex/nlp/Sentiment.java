@@ -1,5 +1,12 @@
 package com.lagunex.nlp;
 
+/**
+ * Class that represents an Entity result of IdolOnDemand's analyzesentiment API
+ * 
+ * https://www.idolondemand.com/developer/apis/analyzesentiment#response
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class Sentiment {
     private static final char SEPARATOR = '|';
     private String sentiment;
@@ -10,6 +17,10 @@ public class Sentiment {
     private int original_length;
     private int normalized_length; 
 
+    /**
+     * 
+     * @return "sentiment|topic|score"
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

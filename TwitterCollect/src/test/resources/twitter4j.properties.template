@@ -1,3 +1,4 @@
+# Rename this file to twitter4j.properties and defined the oauth properties to connect with Twitter
 oauth.consumerKey=CONSUMER_KEY
 oauth.consumerSecret=CONSUMER_SECRET
 
@@ -5,6 +6,6 @@ oauth.consumerSecret=CONSUMER_SECRET
 enableApplicationOnlyAuth=true
 http.useSSL=true
 
-# Only used during tests
+# Only useful during tests
 debug=true
 loggerFactory=twitter4j.StdOutLoggerFactory

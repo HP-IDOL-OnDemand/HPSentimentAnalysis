@@ -7,6 +7,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX standalone application to visualize data from a Vertica database
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class Main extends Application {
     
     ResourceBundle i8n;

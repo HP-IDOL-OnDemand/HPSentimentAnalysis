@@ -16,6 +16,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.text.Text;
 
+/**
+ * The UI for this controller is defined in the resource file com.lagunex.charts.pie.fxml
+ * 
+ * It includes a table to show data on the left side and a pie chart on the right to visualize it
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class PieController implements Initializable, ChartController {
     @FXML protected PieChart chart; 
     @FXML protected TableView<Map<String,Object>> table;
@@ -30,6 +37,7 @@ public class PieController implements Initializable, ChartController {
     }   
 
     private void initTable() {
+        // TableColumn<S,T> receives objects of type T and display objects of type V using a CellValueFactory
         TableColumn<Map<String,Object>,String> label = new TableColumn<>(bundle.getString("chart.sentiment"));
         label.setCellValueFactory(
             cellDataFeature -> new ReadOnlyObjectWrapper<>(
@@ -53,17 +61,17 @@ public class PieController implements Initializable, ChartController {
     }
 
     private void updateTable(List<Map<String, Object>> data) {
-        table.setItems(FXCollections.observableList(data));
+        table.setItems(FXCollections.observableList(data)); // Collections must be transformed into FXCollections
     }
 
     private void updateChart(List<Map<String, Object>> data) {
         chart.setData(FXCollections.observableArrayList(
             data.stream()
-            .map(
-                sample -> new PieChart.Data(
-                    sample.get("label").toString(),
-                    Double.parseDouble(sample.get("total").toString())
-                )
+            .map(sample -> 
+                    new PieChart.Data(
+                            sample.get("label").toString(),
+                            Double.parseDouble(sample.get("total").toString())
+                    )
             )
             .collect(Collectors.toList())
         ));

@@ -10,11 +10,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+// external dependency to connect with Vertica
 import javax.sql.DataSource;
+
+// high level external dependencies to facilitate the execution of queries
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
+/**
+ * Singleton that connects with the Vertica database and performs query to retrieve analytics
+ * 
+ * This class assumes that the following system properties are defined:
+ * 
+ * vertica.hostname
+ * vertica.database
+ * vertica.username
+ * vertica.password
+ * 
+ * This property must be passed at runtime using Java's -D option 
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class Vertica {
     private static final Logger LOGGER = Logger.getLogger(Vertica.class.getName());
 
@@ -68,6 +86,12 @@ public class Vertica {
         return dataSource;
     }
 
+    /**
+     * Return the aggregate sentiment (negative, neutral or positive) of tweets sent during the date range 
+     * @param start inclusive
+     * @param end exclusive
+     * @return each Map in List has the form {"label" : string, "total" : integer} 
+     */
     public List<Map<String,Object>> getAggregateTotal(LocalDateTime start, LocalDateTime end) {
         StringBuilder query = new StringBuilder(100);
             query.append("select aggregate_sentiment as label, count(*) as total ")
@@ -77,9 +101,19 @@ public class Vertica {
                  .append("group by label ")
                  .append("order by total desc ");
         
-        return getResult(query.toString(), getTimestamp(start), getTimestamp(end));
+        return getResult(query.toString(), Timestamp.valueOf(start), Timestamp.valueOf(end));
     }
 
+    /**
+     * Performs the database query, logs the time it took and returns a List of Maps with the results
+     * 
+     * The binding between the query result and the List<Map<>> object returned is performed automatically
+     * by jdbcTemplate
+     * 
+     * @param query sql query to build the statement
+     * @param args parameters to pass to the query to execute the search, the must have a SQL equivalent
+     * @return the Map's keys and values vary depending on the query
+     */
     private List<Map<String, Object>> getResult(String query, Object... args) {
         List<Map<String,Object>> result = new ArrayList<>();
         try {
@@ -92,11 +126,12 @@ public class Vertica {
         return result;
     }
 
-    private Timestamp getTimestamp(LocalDateTime datetime) {
-        Timestamp t = Timestamp.valueOf(datetime);
-        return t;
-    }
-
+    /**
+     * Return the sentiment of tweets sent during the date range 
+     * @param start inclusive
+     * @param end exclusive
+     * @return each Map in List has the form {"label" : string, "total" : integer} 
+     */
     public List<Map<String,Object>> getSentimentTotal(LocalDateTime start, LocalDateTime end) {
         StringBuilder query = new StringBuilder(100);
             query.append("select sentiment as label, count(*) as total ")
@@ -106,7 +141,7 @@ public class Vertica {
                  .append("group by label ")
                  .append("order by total desc ");
 
-        List<Map<String,Object>> result = getResult(query.toString(), getTimestamp(start), getTimestamp(end));
+        List<Map<String,Object>> result = getResult(query.toString(), Timestamp.valueOf(start), Timestamp.valueOf(end));
         List<Map<String,Object>> filtered = groupSmallerValuesAsOthers(result);
         return filtered;
     }
@@ -117,6 +152,13 @@ public class Vertica {
         return clause;
     }
 
+    /**
+     * Create a list with the first 15 elements of data and group all others (if any) in a single
+     * sample called "others"
+     * 
+     * @param data list of elements with {"label": string, "total": integer}
+     * @return data[0,15]+[{"label": "others", "total": integer}] 
+     */
     private List<Map<String, Object>> groupSmallerValuesAsOthers(List<Map<String, Object>> data) {
         List<Map<String, Object>> filtered = new ArrayList<>();
         
@@ -141,6 +183,16 @@ public class Vertica {
         return filtered; 
     }
 
+    /**
+     * Return a histogram of tweets that fall in the given time range.
+     * 
+     * If the time range is less than one hour, the histogram groups the tweets in windows of one minute;
+     * otherwise it groups them in windows of ten minutes
+     * 
+     * @param start inclusive
+     * @param end exclusive
+     * @return each Map in List has the form {"time": datetime, "total" : integer}  
+     */
     public List<Map<String, Object>> getAggregateHistogram(LocalDateTime start, LocalDateTime end) {
         String histogramClass = getHistogramClass(start, end);
 
@@ -149,7 +201,7 @@ public class Vertica {
              .append("from tweet where ").append(getTimeClause(histogramClass))
              .append("group by time order by time");
         
-        return getResult(query.toString(), getTimestamp(start), getTimestamp(end));
+        return getResult(query.toString(), Timestamp.valueOf(start), Timestamp.valueOf(end));
     }
     
     private String getHistogramClass(LocalDateTime start, LocalDateTime end) {
@@ -157,6 +209,12 @@ public class Vertica {
         return getHistogramClass(duration.toHours());
     }
 
+    /**
+     * Creates a sql function to round a time according to a duration in hours.
+     * 
+     * @param hours if less than one, the time is rounded to the minute; otherwise to the ten
+     * @return a function to round a time either like 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DD HH:M0' 
+     */
     private String getHistogramClass(long hours) {
         String histogramClass;
         int timeStringLength;
@@ -172,6 +230,17 @@ public class Vertica {
         return histogramClass; 
     }
 
+    /**
+     * Return a histogram of sentiments that fall in the given time range.
+     * 
+     * The histogram count is divided in sentiments.
+     * If the time range is less than one hour, the histogram groups the tweets within a sentiment
+     * in windows of one minute; otherwise it groups them in windows of ten minutes.
+     * 
+     * @param start inclusive
+     * @param end exclusive
+     * @return each Map in List has the form {"label": string, "time": datetime, "total" : integer}  
+     */
     public List<Map<String, Object>> getSentimentHistogram(LocalDateTime start, LocalDateTime end) {
         String histogramClass = getHistogramClass(start, end);
         StringBuilder where = getJoinWhereClause(histogramClass);
@@ -181,8 +250,8 @@ public class Vertica {
              .append("group by label, time having sentiment in (select sentiment from sentiment, tweet ")
              .append(where).append("group by sentiment order by count(*) desc limit 15) order by time");
         return getResult(query.toString(), 
-                getTimestamp(start), getTimestamp(end),
-                getTimestamp(start), getTimestamp(end));
+                Timestamp.valueOf(start), Timestamp.valueOf(end),
+                Timestamp.valueOf(start), Timestamp.valueOf(end));
     }
 
     private StringBuilder getJoinWhereClause(String timeColumn) {
@@ -191,6 +260,10 @@ public class Vertica {
         return sb;
     }
 
+    /**
+     * Returns the minimum and maximum datetime found among all the tweets
+     * @return {"begin" : datetime, "end": datetime }
+     */
     public Map<String, LocalDateTime> getDateRange() {
         String query = "select min(created_at) as begin, max(created_at) as end from tweet";
 
@@ -202,28 +275,51 @@ public class Vertica {
         return dates;
     }
 
-    public List<Map<String, Object>> getTweetsWithTime(String text) {
-        long hours = text.endsWith("0") ? 1 : 0;
+    /**
+     * Returns the tweet's message and time for the given time window.
+     * 
+     * @param time it should have the format 'yyyy-mm-dd hh:mm'
+     *             If 'mm' is multiple of ten, it is a 10 minutes window; otherwise it is a one minute window
+     * @return Map with format { "time": datatime, "message": string } 
+     */
+    public List<Map<String, Object>> getTweetsWithTime(String time) {
+        long hours = time.endsWith("0") ? 1 : 0;
         String histogramClass = getHistogramClass(hours);
         StringBuilder query = new StringBuilder(100);
         query.append("select created_at as time, message from tweet where ")
              .append(histogramClass).append(" = ? order by time");
-        return getResult(query.toString(), text);
+        return getResult(query.toString(), time);
     }
-
+    
+    /**
+     * Returns the tweet's message and time for the given sentiment in the given time range
+     * 
+     * @param sentiment 
+     * @param start inclusive
+     * @param end exclusive
+     * @return Map with format { "time": datatime, "message": string } 
+     */
     public List<Map<String, Object>> getTweetsWithSentiment(String sentiment, LocalDateTime start, LocalDateTime end) {
         StringBuilder query = new StringBuilder(100);
         query.append("select created_at as time, message from tweet, sentiment ")
              .append(getJoinWhereClause("created_at"))
              .append(" and sentiment = ? order by time");
-        return getResult(query.toString(), getTimestamp(start), getTimestamp(end), sentiment); 
+        return getResult(query.toString(), Timestamp.valueOf(start), Timestamp.valueOf(end), sentiment); 
     }
-
+    
+    /**
+     * Returns the tweet's message and time for the given aggregate sentiment in the given time range
+     * 
+     * @param sentiment 
+     * @param start inclusive
+     * @param end exclusive
+     * @return Map with format { "time": datatime, "message": string } 
+     */
     public List<Map<String, Object>> getTweetsWithAggregate(String sentiment, LocalDateTime start, LocalDateTime end) {
         StringBuilder query = new StringBuilder(100);
         query.append("select created_at as time, message from tweet where ")
              .append(getTimeClause("created_at"))
              .append(" and aggregate_sentiment = ? order by time");
-        return getResult(query.toString(), getTimestamp(start), getTimestamp(end), sentiment); 
+        return getResult(query.toString(), Timestamp.valueOf(start), Timestamp.valueOf(end), sentiment); 
     }
 }

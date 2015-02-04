@@ -1,5 +1,12 @@
 package com.lagunex.nlp;
 
+/**
+ * Class that represents an Aggregate result of IdolOnDemand's analyzesentiment API
+ * 
+ * https://www.idolondemand.com/developer/apis/analyzesentiment#response
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class Aggregate {
     
     private static final char SEPARATOR = '|';
@@ -7,6 +14,10 @@ public class Aggregate {
     private String sentiment;
     private double score;
 
+    /**
+     * 
+     * @return "sentiment|score" 
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

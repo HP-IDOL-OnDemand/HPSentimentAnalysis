@@ -18,6 +18,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.text.Text;
 
+/**
+ * The UI for this controller is defined in the resource file com.lagunex.charts.line.fxml
+ * 
+ * It includes a table to show data on the left side and a line chart on the right to visualize it.
+ * The line chart could display one or many categories. If different categories are displayed, it
+ * adds a new column to the left table to show to which category each sample belongs
+ * 
+ * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
+ */
 public class HistogramController implements Initializable, ChartController {
     @FXML protected LineChart<String, Number> chart; 
     @FXML protected TableView<Map<String,Object>> table;
@@ -35,7 +44,7 @@ public class HistogramController implements Initializable, ChartController {
         this.start = start;
         this.end = end;
         
-        if (data.size() > 0 && data.get(0).get("label") != null) {
+        if (data.size() > 0 && data.get(0).get("label") != null) { // samples include a category label
             updateWithThreeColumns(data);
         } else {
             updateWithTwoColumns(data);
@@ -56,6 +65,7 @@ public class HistogramController implements Initializable, ChartController {
         initTwoColumnsTable();
         table.getColumns().get(1).setText(bundle.getString("chart.total"));
         
+        // TableColumn<S,T> receives objects of type T and display objects of type V using a CellValueFactory
         TableColumn<Map<String,Object>,String> label = new TableColumn<>(bundle.getString("chart.sentiment"));
         label.setCellValueFactory(
             cellDataFeature -> new ReadOnlyObjectWrapper<>(
@@ -80,7 +90,7 @@ public class HistogramController implements Initializable, ChartController {
     }
     
     private void updateTableData(List<Map<String, Object>> data) {
-        table.setItems(FXCollections.observableList(data));
+        table.setItems(FXCollections.observableList(data)); // Collections must be transformed into FXCollections
     }
     
     private void updateThreeColumnsChart(List<Map<String, Object>> data) {
@@ -93,25 +103,41 @@ public class HistogramController implements Initializable, ChartController {
         chart.getXAxis().setLabel(bundle.getString("chart.xaxis"));
     } 
     
+    /**
+     * Updates the line chart with different categories. Each element of data
+     * belong to the category defined by its label
+     * 
+     * @param data elements of this list are {"label":string, "time": datetime, "total": integer} 
+     */
     private void updateThreeColumnsChartData(List<Map<String, Object>> data) {
         Map<String,XYChart.Series> series = new HashMap<>();
         
         data.stream().forEachOrdered(sample -> {
             String label = sample.get("label").toString();
-            XYChart.Series serie;
-            if (series.containsKey(label)) {
-                serie = series.get(label);
-            } else {
-                serie = new XYChart.Series<>();
-                serie.setName(label);
-                series.put(label, serie);
-            }
-            serie.getData().add(new XYChart.Data<>(sample.get("time").toString(),sample.get("total")));
+            XYChart.Series serie = getOrInitSerie(series, label);
+            serie.getData().add(
+                    new XYChart.Data<>(
+                            sample.get("time").toString(),
+                            sample.get("total")
+                    )
+            );
         });
         
         series.values().stream().forEach((serie) -> {
             chart.getData().add(serie);
         });
+    }
+
+    private XYChart.Series getOrInitSerie(Map<String,XYChart.Series> series, String label) {
+        XYChart.Series serie;
+        if (series.containsKey(label)) {
+            serie = series.get(label);
+        } else {
+            serie = new XYChart.Series<>();
+            serie.setName(label);
+            series.put(label, serie);
+        }
+        return serie;
     }
     
     private void updateWithTwoColumns(List<Map<String, Object>> data) {
@@ -135,7 +161,12 @@ public class HistogramController implements Initializable, ChartController {
             bundle.getString("chart.aggregate"),
             FXCollections.observableArrayList(
                 data.stream()
-                .map(sample -> new XYChart.Data<>(sample.get("time").toString(),sample.get("total")))
+                .map(sample -> 
+                        new XYChart.Data<>(
+                                sample.get("time").toString(),
+                                sample.get("total")
+                        )
+                )
                 .collect(Collectors.toList())
             )
         );
