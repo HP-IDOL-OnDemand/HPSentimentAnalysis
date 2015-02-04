@@ -1,15 +1,25 @@
-apply plugin: 'maven'
+mainClassName = ''
+task installApp.doLast {
+    delete destinationDir.getAbsolutePath()+"/bin" // There are no executables
+}
+
+applicationDistribution.from(projectDir) {
+  include "scripts/*"
+  include "db/*"
+}
 
 dependencies {
     compile group: 'com.vertica', name: 'vertica-jdbc', version:'7.1.1.0'
     compile 'org.springframework:spring-jdbc:4.1.4.RELEASE'
 }
 
-applicationDistribution.from(projectDir) {
-  include "scripts/*"
+task installJdbcLocally(type:Exec) {
+    workingDir projectDir
+    commandLine 'mvn', 'install:install-file', '-Dfile=libs/vertica-jdbc-7.1.1-0.jar',
+                                                '-DgroupId=com.vertica',
+                                                '-DartifactId=vertica-jdbc',
+                                                '-Dversion=7.1.1.0',\
+                                                '-Dpackaging=jar'
 }
 
-mainClassName = ''
-task installApp.doLast {
-    delete destinationDir.getAbsolutePath()+"/bin"
-}
+task compileJava.dependsOn(installJdbcLocally)
