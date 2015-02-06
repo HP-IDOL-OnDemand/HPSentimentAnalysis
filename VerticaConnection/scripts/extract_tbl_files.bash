@@ -2,7 +2,7 @@
 TWEET_FILE=$1 # e.g. id|tweet|es|created_at
 IDOL_FILE=$2 # e.g. either 'id|neutral|score', blank line or 'id|sentiment|topic|score'
 
-AGGREGATE_REGEX="([0-9]+\|\w+\|[^|]+$)|^\s*$" # e.g. id|neutral|score or blank line
+AGGREGATE_REGEX="(^[0-9]+\|[^|]+\|[^|]+$)|^\s*$" # e.g. id|neutral|score or blank line
 
 grep -vE $AGGREGATE_REGEX $IDOL_FILE > sentiment.tbl # id|sentiment|topic|score
 
