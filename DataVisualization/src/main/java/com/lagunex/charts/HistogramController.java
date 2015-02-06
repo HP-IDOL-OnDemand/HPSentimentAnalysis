@@ -66,7 +66,7 @@ public class HistogramController implements Initializable, ChartController {
         table.getColumns().get(1).setText(bundle.getString("chart.total"));
         
         // TableColumn<S,T> receives objects of type T and display objects of type V using a CellValueFactory
-        TableColumn<Map<String,Object>,String> label = new TableColumn<>(bundle.getString("chart.sentiment"));
+        TableColumn<Map<String,Object>,String> label = new TableColumn<>(bundle.getString("chart.topic"));
         label.setCellValueFactory(
             cellDataFeature -> new ReadOnlyObjectWrapper<>(
                 cellDataFeature.getValue().get("label").toString())

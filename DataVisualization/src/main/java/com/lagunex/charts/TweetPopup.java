@@ -29,7 +29,7 @@ class TweetPopup {
 
     /**
      * Queries Vertica for tweets given some parameters
-     * @param text could be a string representing a datetime or a sentiment
+     * @param text could be a string representing a datetime or a topic
      * @param start time range for the query. Inclusive.
      * @param end time range for the query. Exclusive.
      */
@@ -40,7 +40,7 @@ class TweetPopup {
         } else if (text.equals("positive") || text.equals("negative") || text.equals("neutral")) {
             showTweetsWithAggregate(text, start, end);
         } else {
-            showTweetsWithSentiment(text, start, end);
+            showTweetsWithTopic(text, start, end);
         }
     }
 
@@ -81,11 +81,11 @@ class TweetPopup {
         updateListOnSuccess(task);
     }
     
-    private void showTweetsWithSentiment(String text, LocalDateTime start, LocalDateTime end) {
+    private void showTweetsWithTopic(String text, LocalDateTime start, LocalDateTime end) {
         Task<List<Map<String,Object>>> task = new Task(){
             @Override
             protected List<Map<String,Object>> call() throws Exception {
-                return vertica.getTweetsWithSentiment(text, start, end);
+                return vertica.getTweetsWithTopic(text, start, end);
             }
         };        
         new Thread(task).start();

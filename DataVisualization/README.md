@@ -8,11 +8,11 @@ With DataVisualization you can:
 
 - Set a time range to collect anylitics.
 - See the number of tweets group by aggregate sentiment (neutral, negative or positive) in a pie chart.
-- See the number of tweets from the top 15 sentiments in a pie chart.
+- See the number of tweets from the top 50 topics in a pie chart.
 - See how the average aggregate score evolved during the given time with a line chart.
-- See the evolution of the number of tweets from the top 15 sentiments during the given time with a line chart.
-- See all tweets that correspond to a given sentiment (aggregate or specific) or in a given time window.
-  To do this, locate the data table on the left side of any chart, right click on a time window or sentiment cell
+- See the evolution of the number of tweets from the top 50 topics during the given time with a line chart.
+- See all tweets that correspond to a given aggregate sentiment, topic or in a given time window.
+  To do this, locate the data table on the left side of any chart, right click on a time window, aggregate sentiment or topic cell
   and select "view tweets with..." to open a popup window with the related tweets.
 
 SOURCE DESCRIPTION

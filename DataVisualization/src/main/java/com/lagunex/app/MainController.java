@@ -173,8 +173,8 @@ public class MainController implements Initializable {
                 return Arrays.asList(
                     new ChartResult(ChartResult.Type.Pie, vertica.getAggregateTotal(begin, end), begin, end),
                     new ChartResult(ChartResult.Type.Line, vertica.getAggregateHistogram(begin, end), begin, end),
-                    new ChartResult(ChartResult.Type.Pie, vertica.getSentimentTotal(begin, end), begin, end),
-                    new ChartResult(ChartResult.Type.Line, vertica.getSentimentHistogram(begin, end), begin, end)
+                    new ChartResult(ChartResult.Type.Pie, vertica.getTopicTotal(begin, end), begin, end),
+                    new ChartResult(ChartResult.Type.Line, vertica.getTopicHistogram(begin, end), begin, end)
                 );
             }
         }; 

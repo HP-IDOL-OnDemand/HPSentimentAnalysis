@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Before;
 
 public class SentimentAnalysisTest {
     @Test
@@ -42,8 +41,8 @@ public class SentimentAnalysisTest {
     public void analyseWithValidLanguage() {
         SentimentAnalysis engine = SentimentAnalysis.getInstance(); 
         SentimentResult t = engine.analyse(
-                "This is a good day", 
-                SentimentAnalysis.Language.English);
+                "Este es un buen día", 
+                SentimentAnalysis.Language.Spanish);
         assertNotNull(t);
         assertNotNull(t.getPositive());
         assertNotNull(t.getNegative());

@@ -127,17 +127,17 @@ public class Vertica {
     }
 
     /**
-     * Return the sentiment of tweets sent during the date range 
+     * Return the topic of tweets sent during the date range 
      * @param start inclusive
      * @param end exclusive
      * @return each Map in List has the form {"label" : string, "total" : integer} 
      */
-    public List<Map<String,Object>> getSentimentTotal(LocalDateTime start, LocalDateTime end) {
+    public List<Map<String,Object>> getTopicTotal(LocalDateTime start, LocalDateTime end) {
         StringBuilder query = new StringBuilder(100);
-            query.append("select sentiment as label, count(*) as total ")
+            query.append("select topic as label, count(*) as total ")
                  .append("from tweet, sentiment ")
                  .append(getJoinWhereClause("created_at"))
-                 .append("  and sentiment is not null ")
+                 .append("  and topic is not null ")
                  .append("group by label ")
                  .append("order by total desc ");
 
@@ -162,7 +162,7 @@ public class Vertica {
     private List<Map<String, Object>> groupSmallerValuesAsOthers(List<Map<String, Object>> data) {
         List<Map<String, Object>> filtered = new ArrayList<>();
         
-        int mostCommon = 15;
+        int mostCommon = 50;
         int added = 0;
         
         long otherTotal = 0L;
@@ -231,24 +231,24 @@ public class Vertica {
     }
 
     /**
-     * Return a histogram of sentiments that fall in the given time range.
+     * Return a histogram of topics that fall in the given time range.
      * 
-     * The histogram count is divided in sentiments.
-     * If the time range is less than one hour, the histogram groups the tweets within a sentiment
+     * The histogram count is divided in topics.
+     * If the time range is less than one hour, the histogram groups the tweets within a topic
      * in windows of one minute; otherwise it groups them in windows of ten minutes.
      * 
      * @param start inclusive
      * @param end exclusive
      * @return each Map in List has the form {"label": string, "time": datetime, "total" : integer}  
      */
-    public List<Map<String, Object>> getSentimentHistogram(LocalDateTime start, LocalDateTime end) {
+    public List<Map<String, Object>> getTopicHistogram(LocalDateTime start, LocalDateTime end) {
         String histogramClass = getHistogramClass(start, end);
         StringBuilder where = getJoinWhereClause(histogramClass);
         StringBuilder query = new StringBuilder(200);
-        query.append("select sentiment as label, ").append(histogramClass).append(" as time, ")
+        query.append("select topic as label, ").append(histogramClass).append(" as time, ")
              .append("count(*) as total from tweet, sentiment ").append(where)
-             .append("group by label, time having sentiment in (select sentiment from sentiment, tweet ")
-             .append(where).append("group by sentiment order by count(*) desc limit 15) order by time");
+             .append("group by label, time having topic in (select topic from sentiment, tweet ")
+             .append(where).append("group by topic order by count(*) desc limit 15) order by time");
         return getResult(query.toString(), 
                 Timestamp.valueOf(start), Timestamp.valueOf(end),
                 Timestamp.valueOf(start), Timestamp.valueOf(end));
@@ -292,18 +292,18 @@ public class Vertica {
     }
     
     /**
-     * Returns the tweet's message and time for the given sentiment in the given time range
+     * Returns the tweet's message and time for the given topic in the given time range
      * 
      * @param sentiment 
      * @param start inclusive
      * @param end exclusive
      * @return Map with format { "time": datatime, "message": string } 
      */
-    public List<Map<String, Object>> getTweetsWithSentiment(String sentiment, LocalDateTime start, LocalDateTime end) {
+    public List<Map<String, Object>> getTweetsWithTopic(String sentiment, LocalDateTime start, LocalDateTime end) {
         StringBuilder query = new StringBuilder(100);
         query.append("select created_at as time, message from tweet, sentiment ")
              .append(getJoinWhereClause("created_at"))
-             .append(" and sentiment = ? order by time");
+             .append(" and topic = ? order by time");
         return getResult(query.toString(), Timestamp.valueOf(start), Timestamp.valueOf(end), sentiment); 
     }
     

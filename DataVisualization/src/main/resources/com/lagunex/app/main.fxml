@@ -13,8 +13,8 @@
         <tabs>
           <Tab text="%chart.aggregate.pie" />
           <Tab text="%chart.aggregate.histogram" />
-            <Tab text="%chart.sentiment.pie" />
-            <Tab text="%chart.sentiment.histogram" />
+            <Tab text="%chart.topic.pie" />
+            <Tab text="%chart.topic.histogram" />
         </tabs>
       </TabPane>
    </center>

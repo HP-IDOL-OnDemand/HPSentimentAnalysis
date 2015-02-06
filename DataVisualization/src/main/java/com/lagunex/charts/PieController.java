@@ -38,7 +38,7 @@ public class PieController implements Initializable, ChartController {
 
     private void initTable() {
         // TableColumn<S,T> receives objects of type T and display objects of type V using a CellValueFactory
-        TableColumn<Map<String,Object>,String> label = new TableColumn<>(bundle.getString("chart.sentiment"));
+        TableColumn<Map<String,Object>,String> label = new TableColumn<>(bundle.getString("chart.topic"));
         label.setCellValueFactory(
             cellDataFeature -> new ReadOnlyObjectWrapper<>(
                 cellDataFeature.getValue().get("label").toString())

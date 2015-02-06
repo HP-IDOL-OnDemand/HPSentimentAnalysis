@@ -83,7 +83,7 @@ public class VerticaTest {
     public void getSentimentHistogramDuringOneHourOrMore() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 00);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 2, 00);
-        List<Map<String, Object>> result = vertica.getSentimentHistogram(begin, end);
+        List<Map<String, Object>> result = vertica.getTopicHistogram(begin, end);
 
         result.stream().forEach(row -> {
             assertNotNull(row.get("time"));
@@ -95,7 +95,7 @@ public class VerticaTest {
     public void getSentimentHistogramDuringLessThanOneHour() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 50);
-        List<Map<String, Object>> result = vertica.getSentimentHistogram(begin, end);
+        List<Map<String, Object>> result = vertica.getTopicHistogram(begin, end);
 
         result.stream().forEach(row -> {
             assertNotNull(row.get("time"));
@@ -107,7 +107,7 @@ public class VerticaTest {
     public void getSentimentTotal() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 8, 0);
-        List<Map<String, Object>> result = vertica.getSentimentTotal(begin, end);
+        List<Map<String, Object>> result = vertica.getTopicTotal(begin, end);
 
         assertEquals(16, result.size());
         result.stream().forEach(row -> {
@@ -137,7 +137,7 @@ public class VerticaTest {
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 8, 0);
 
         String sampleSentiment = "Congrats";
-        List<Map<String, Object>> result = vertica.getTweetsWithSentiment(sampleSentiment, begin, end); 
+        List<Map<String, Object>> result = vertica.getTweetsWithTopic(sampleSentiment, begin, end); 
         assertTrue(result.size()>0);
         result.stream().forEach(row -> {
             assertNotNull(row.get("time"));
