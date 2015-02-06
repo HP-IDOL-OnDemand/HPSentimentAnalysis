@@ -130,7 +130,7 @@ The use of twitter4j is highlighted. Our method `search` takes advantage of lamb
 
 For this application, we only use four parameters from a tweet: `id`, `message`, `language` and `createdAt`. We defined a class `Tweet` that extracts this attributes from a `twitter4j.Status` object.
 
-[code collapse="true" language="java" title="Tweet.java"]// imports are remove for brevity
+[code collapse="true" language="java" title="src/main/java/Tweet.java"]// imports are remove for brevity
 
 public class Tweet {
     private final long id;
