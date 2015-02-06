@@ -15,11 +15,14 @@ dependencies {
 
 task installJdbcLocally(type:Exec) {
     workingDir projectDir
-    commandLine 'mvn', 'install:install-file', '-Dfile=libs/vertica-jdbc-7.1.1-0.jar',
-                                                '-DgroupId=com.vertica',
-                                                '-DartifactId=vertica-jdbc',
-                                                '-Dversion=7.1.1.0',\
-                                                '-Dpackaging=jar'
+
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        commandLine 'cmd', '/c', 'mvn', 'install:install-file', '-Dfile=libs/vertica-jdbc-7.1.1-0.jar',
+                    '-DgroupId=com.vertica', '-DartifactId=vertica-jdbc', '-Dversion=7.1.1.0', '-Dpackaging=jar'
+    } else {
+        commandLine 'mvn', 'install:install-file', '-Dfile=libs/vertica-jdbc-7.1.1-0.jar',
+                    '-DgroupId=com.vertica', '-DartifactId=vertica-jdbc', '-Dversion=7.1.1.0', '-Dpackaging=jar'
+    }
 }
 
 task compileJava.dependsOn(installJdbcLocally)
