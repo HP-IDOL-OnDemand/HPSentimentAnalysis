@@ -53,6 +53,11 @@ RUN
 Once installed,
 
     JAVA_OPTS="-DidolOnDemand.apiKey=your-api-key" \
-    IdolSentimentAnalysis/build/install/IdolSentimentAnalysis/bin/IdolSentimentAnalysis -h
+    build/install/IdolSentimentAnalysis/bin/IdolSentimentAnalysis -h
+
+On Windows
+
+    set JAVA_OPTS=-DidolOnDemand.apiKey=your-api-key
+    build\install\IdolSentimentAnalysis\bin\IdolSentimentAnalysis.bat -h
 
 This projected is licensed under the terms of the MIT license.

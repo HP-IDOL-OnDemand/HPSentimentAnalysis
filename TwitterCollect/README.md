@@ -43,4 +43,9 @@ Once installed,
     JAVA_OPTS="-Dtwitter4j.oauth.consumerKey=CONSUMER_KEY -Dtwitter4j.oauth.consumerSecret=CONSUMER_SECRET" \
     build/install/TwitterCollect/bin/TwitterCollect -h
 
+On Windows
+
+    set JAVA_OPTS=-Dtwitter4j.oauth.consumerKey=CONSUMER_KEY -Dtwitter4j.oauth.consumerSecret=CONSUMER_SECRET
+    build\install\TwitterCollect\bin\TwitterCollect.bat -h
+
 This projected is licensed under the terms of the MIT license.

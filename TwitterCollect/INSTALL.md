@@ -24,6 +24,11 @@ Once installed,
     JAVA_OPTS="-Dtwitter4j.oauth.consumerKey=CONSUMER_KEY -Dtwitter4j.oauth.consumerSecret=CONSUMER_SECRET" \
     build/install/TwitterCollect/bin/TwitterCollect -h
 
+On Windows
+
+    set JAVA_OPTS=-Dtwitter4j.oauth.consumerKey=CONSUMER_KEY -Dtwitter4j.oauth.consumerSecret=CONSUMER_SECRET
+    build\install\TwitterCollect\bin\TwitterCollect.bat -h
+
 Notice that you do not need to pass "-DenableApplicationOnlyAuth=true -Dhttp.useSSL=true" as Java options to
 run the executable, even though this properties are defined in the template file.
 

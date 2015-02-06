@@ -7,7 +7,7 @@ Maven's standard directory layout.
 REQUIREMENTS
 ============
 
-In order to run this project you need the following softwares in your machine.
+In order to run this project you need the following software in your machine.
 
 - Java 8 SE http://www.java.com/es/
 - Gradle http://gradle.org/
@@ -24,6 +24,11 @@ To run the data visualization system
 
     JAVA_OPTS="-Dvertica.hostname=192.168.1.17 -Dvertica.database=topcoder -Dvertica.username=dbadmin -Dvertica.password=password" \
     DataVisualization/build/install/DataVisualization/bin/DataVisualization
+
+On Windows:
+
+    set JAVA_OPTS=-Dvertica.hostname=192.168.1.17 -Dvertica.database=topcoder -Dvertica.username=dbadmin -Dvertica.password=password
+    DataVisualization\build\install\DataVisualization\bin\DataVisualization.bat
 
 Test requirements
 -----------------
