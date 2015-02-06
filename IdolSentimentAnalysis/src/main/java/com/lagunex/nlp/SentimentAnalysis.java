@@ -127,8 +127,8 @@ public class SentimentAnalysis {
      * @return result or null if opinion could not be analyse with the given language 
      */
     public SentimentResult analyse(String opinion, Language lang) {
-        opinion = encode(opinion);
         if (opinion != null && lang != null) {
+            opinion = encode(opinion);
             return callRestApi(opinion, lang.longCode);
         } else {
             return null;
@@ -136,13 +136,7 @@ public class SentimentAnalysis {
     }
 
     private String encode(String opinion) {
-        String encoded = null;
-        try {
-            encoded = URLEncoder.encode(opinion, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            LOGGER.warning(ex.getMessage());
-        } 
-        return encoded;
+        return opinion.replaceAll("[&#=]|http[^|]+","");
     }
 
     /**
@@ -164,7 +158,7 @@ public class SentimentAnalysis {
         try {
             // calls the API and parse the JSON response into a Java object
             result = rest.getForObject(
-                URL+"?apikey="+this.API_KEY+"&text="+opinion+"&language="+lang,
+                String.format("%s?apikey=%s&language=%s&text=%s",URL,API_KEY,lang,opinion),
                 SentimentResult.class); 
         } catch (RestClientException ex) {
             LOGGER.warning(ex.getMessage());
