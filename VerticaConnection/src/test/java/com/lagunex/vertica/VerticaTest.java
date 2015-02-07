@@ -109,7 +109,7 @@ public class VerticaTest {
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 8, 0);
         List<Map<String, Object>> result = vertica.getTopicTotal(begin, end);
 
-        assertEquals(16, result.size());
+        assertEquals(51, result.size());
         result.stream().forEach(row -> {
             assertNotNull(row.get("label"));
             assertNotNull(row.get("total"));
@@ -132,11 +132,11 @@ public class VerticaTest {
     }
     
     @Test
-    public void getTweetsWithSentiment() {
+    public void getTweetsWithTopic() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 8, 0);
 
-        String sampleSentiment = "Congrats";
+        String sampleSentiment = "SB49";
         List<Map<String, Object>> result = vertica.getTweetsWithTopic(sampleSentiment, begin, end); 
         assertTrue(result.size()>0);
         result.stream().forEach(row -> {
