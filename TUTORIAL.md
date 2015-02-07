@@ -1,3 +1,5 @@
+<!-- This file is published as a [blog post](http://lagunex.com/2015/02/05/sentiment-analysis-on-twitter-with-hp-vertica-and-idolondemand/). That's why you find tags that are not properly display in Bitbucket. -->
+
 <!-- {{{ Introduction -->
 [Sentiment Analysis](http://en.wikipedia.org/wiki/Sentiment_analysis) allows us to determine the "attitude" of a speaker. For instance, we would like to read tweets from an event of our interest to identify which tweets are positive opinions, which are negative opinions and moreover, what's the specific sentiment they are expressing. Is it love, hate, gratefulness?
 
@@ -12,9 +14,9 @@ The source code for this project is available as open source. You can download i
 
 <!--more-->
 
-The Sentiment Analysis API is developed by [IBM IdolOnDemand](http://www.idolondemand.com), a platform that offers developers different tools to extract meaning from unstructured data like tweets, videos and pictures.
+The Sentiment Analysis API is developed by [HP IdolOnDemand](http://www.idolondemand.com), a platform that offers developers different tools to extract meaning from unstructured data like tweets, videos and pictures.
 
-We use [IBM Vertica Analytics Platform](http://www.vertica.com/about/) as our database. This platform is specially designed to store more data and run queries faster than our traditional solutions.
+We use [HP Vertica Analytics Platform](http://www.vertica.com/about/) as our database. This platform is specially designed to store more data and run queries faster than our traditional solutions.
 
 ### Technologies used
 
