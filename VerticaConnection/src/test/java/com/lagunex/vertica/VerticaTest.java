@@ -81,7 +81,7 @@ public class VerticaTest {
     } 
 
     @Test
-    public void getSentimentHistogramDuringOneHourOrMore() {
+    public void getTopicHistogramDuringOneHourOrMore() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 00);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 2, 00);
         List<Map<String, Object>> result = vertica.getTopicHistogram(begin, end);
@@ -93,7 +93,7 @@ public class VerticaTest {
     }
 
     @Test
-    public void getSentimentHistogramDuringLessThanOneHour() {
+    public void getTopicHistogramDuringLessThanOneHour() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 50);
         List<Map<String, Object>> result = vertica.getTopicHistogram(begin, end);
@@ -105,7 +105,7 @@ public class VerticaTest {
     } 
 
     @Test
-    public void getSentimentTotal() {
+    public void getTopicTotal() {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 8, 0);
         List<Map<String, Object>> result = vertica.getTopicTotal(begin, end);
@@ -137,8 +137,8 @@ public class VerticaTest {
         LocalDateTime begin = LocalDateTime.of(2015, Month.FEBRUARY, 2, 1, 0);
         LocalDateTime end = LocalDateTime.of(2015, Month.FEBRUARY, 2, 8, 0);
 
-        String sampleSentiment = "SB49";
-        List<Map<String, Object>> result = vertica.getTweetsWithTopic(sampleSentiment, begin, end); 
+        String sampleTopic = "SB49";
+        List<Map<String, Object>> result = vertica.getTweetsWithTopic(sampleTopic, begin, end); 
         assertTrue(result.size()>0);
         result.stream().forEach(row -> {
             assertNotNull(row.get("time"));
