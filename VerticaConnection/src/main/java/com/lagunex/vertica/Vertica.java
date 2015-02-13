@@ -106,7 +106,7 @@ public class Vertica {
             return 0;
         }
       
-        // Restored the original message with unescaped characters and line breaks
+        // Restore the original message with unescaped characters and line breaks
         String unescapedMessage = StringUtils.unescape(args[1].toString(), separator);
         args[1] = StringUtils.uncollapseLines(unescapedMessage);
         if (args.length == 4) { // does not include aggregate data
