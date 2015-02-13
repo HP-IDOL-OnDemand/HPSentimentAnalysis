@@ -1,2 +1,7 @@
+mainClassName = ''
+task installApp.doLast {
+    delete destinationDir.getAbsolutePath()+"/bin" // There are no executables
+}
+
 dependencies {
 }
