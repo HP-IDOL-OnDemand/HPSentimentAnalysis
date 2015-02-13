@@ -167,11 +167,6 @@ For this application, we only use four parameters from a tweet: `id`, `message`,
             createdAt = LocalDateTime.ofInstant(s.getCreatedAt().toInstant(),ZoneOffset.UTC);
         }
     
-        @Override
-        public String toString() {
-            return String.format("%d|%s|%s|%s",id,message,language,createdAt);
-        }
-    
         // getter and setters are not shown for brevity
     }
 
@@ -199,15 +194,29 @@ Now we run our test to see the result:
 
 To finish this part, let's write a small `main` application to be able to search for tweets from the command line:
 
-[code collapse="true" language="java" title="src/main/java/com/lagunex/twitter/Main.java"]
+[code collapse="true" language="java" title="src/main/java/com/lagunex/twitter/Main.java" highlight="15"]
 
     public class Main {
         public static void main(String[] args) {
-            TwitterClient.getInstance().search(args[0], tweet -> System.out.println(tweet));
+            Consumer<Tweet> printTweetToOutput = tweet -> {
+                String singleLineMessage = StringUtils.collapseLines(tweet.getMessage());
+                System.out.println(
+                    String.join("|",
+                        String.valueOf(tweet.getId()),
+                        StringUtils.escape(singleLineMessage),
+                        tweet.getLanguage(),
+                        StringUtils.formatDateTime(tweet.getCreatedAt())
+                    )
+                );
+            };
+
+            TwitterClient.getInstance().search(args[0], printTweetToOutput);
         }
     }
 
 [/code]
+
+`main` calls `TwitterClient` and prints the output on line 15. Previously, we defined a `Consumer` using a lambda expression to print our tweets in a single line, escaping the `|` character in the tweet's message to avoid conflicts with the `|` character used as separator. This "one line per tweet" representation will facilitate us the task of inserting the data into Vertica later. The `StringUtils` class used to remove the line breaks and escape the message is provided in the repository in a sub-project named `common`. We will not get into the details of its implementation because it is out of the scope of this tutorial.
 
 We need to copy `src/test/resources/twitter4j.properties` into the `src/main/resources` directory to configure twitter4j at runtime. Finally, run `gradle installApp` to build the executable. It will be saved in `build/install/TwitterCollect` with all its dependencies.
 
@@ -231,7 +240,7 @@ The first functionality of our system is complete. Let's perform Sentiment Analy
 
 [IdolOnDemand](https://www.idolondemand.com) offers the API [analyzesentiment](https://www.idolondemand.com/developer/apis/analyzesentiment) to perform Sentiment Analysis over text. We need to implement a library that encapsulates this service and exposes a Java interface to perform the analysis.
 
-As we can see in its documentation, the service [receives](https://www.idolondemand.com/developer/apis/analyzesentiment#request) the text to analyze and an optional parameter to specify the text's language, in case it is not English. Its [JSON response](https://www.idolondemand.com/developer/apis/analyzesentiment#response) includes the results of the analysis. You can [try the API](https://www.idolondemand.com/developer/apis/analyzesentiment#try) to get familiar with its behavior. 
+As we can see in its documentation, the service [receives](https://www.idolondemand.com/developer/apis/analyzesentiment#request) the text to analyze and an optional parameter to specify the text's language, in case it is not English. Its [JSON response](https://www.idolondemand.com/developer/apis/analyzesentiment#response) includes the results of the analysis. You can [try the API](https://www.idolondemand.com/developer/apis/analyzesentiment#try) to get familiar with its behavior.
 
 If you downloaded the source code, go to the `IdolSentimentAnalysis` project before continuing.
 
@@ -247,7 +256,7 @@ We want a Singleton with a method `analyse` that receives the text and language 
     public class SentimentAnalysisTest {
         @Test
         public void analyse() {
-            SentimentAnalysis engine = SentimentAnalysis.getInstance(); 
+            SentimentAnalysis engine = SentimentAnalysis.getInstance();
             SentimentResult t = engine.analyse("This is a good day", "eng");
             assertNotNull(t);
             assertNotNull(t.getPositive());
@@ -313,7 +322,7 @@ Our service needs to access the following information: the API endpoint, the API
             return rest.getForObject(
                     String.format("%s?apikey=%s&text=%s&language=%s", URL, API_KEY, opinion, language),
                     SentimentResult.class
-            ); 
+            );
         }
     
         private String encode(String opinion) {
@@ -321,8 +330,8 @@ Our service needs to access the following information: the API endpoint, the API
             try {
                 encoded = URLEncoder.encode(opinion, "UTF-8");
             } catch (UnsupportedEncodingException ex) {
-                // handle exception 
-            } 
+                // handle exception
+            }
             return encoded;
         }
     }
@@ -443,7 +452,7 @@ Finally, we install and run the executable, passing our `idolOnDemand.apiKey` at
 <!-- {{{ # VerticaConnection -->
 # <a name="vertica"></a> Create a Vertica database
 
-We are halfway through with our system. It can search for tweets and analyse them to extract their attitude. Now we need a database to store them and library to connect with the database and query its data.
+We are halfway through with our system. It can search for tweets and analyse them to extract their attitude. Now we need a database to store them and a library to connect with the database and query its data.
 
 [HP Vertica Analytics Platform](http://www.vertica.com/) offers a database system adapted to the requirements of Big Data: more storage and faster queries. You can try [HP Vertica Community Edition](https://my.vertica.com/community/) for free. Look at its [documentation center](http://www.vertica.com/hp-vertica-documentation/), [Started Guide](http://my.vertica.com/docs/6.0.x/HTML/index.htm#17488.htm) and [Reference Manual](https://my.vertica.com/docs/7.0.x/PDF/HP_Vertica_7.0.x_SQL_Reference_Manual.pdf) for further information.
 
@@ -462,9 +471,12 @@ The following SQL script will create those tables for us:
 
 [code collapse="true" language="sql" title="scripts/create_tables.sql"]
 
+    -- In Vertica, varchar size is given as byte length, not character length.
+    -- We consider 4 bytes per character (worst case in UTF-8).
+    -- Therefore 140*4 = 560
     create table tweet
-    (   tweetid             integer         not null primary key,
-        message             varchar(140)    not null,
+    (tweetid                  integer         not null primary key,
+        message             varchar(560)    not null,
         lang                char(2)         not null,
         created_at          timestamp       not null,
         aggregate_sentiment varchar(10),
@@ -472,21 +484,20 @@ The following SQL script will create those tables for us:
     );
     
     create table sentiment
-    (   id        auto_increment primary key,
+    (sentimentid        auto_increment primary key,
         tweet_id  integer not null,
-        sentiment varchar(140),
-        topic     varchar(140),
+        sentiment varchar(560),
+        topic     varchar(560),
         score     float
     );
     
-    alter table sentiment 
-        add constraint fk_sentiment_tweet foreign key (tweet_id)
-             references tweet (id)
-    ;
+    alter table sentiment
+            add constraint fk_sentiment_tweet foreign key (tweet_id)
+                references tweet (id);
 
 [/code]
 
-To populate our tables, we can use plain text [tbl files](http://file.org/extension/tbl). This files represent one entry per row and its attributes are separated by pipes "|", similar to "csv" files. The `toString()` methods we have defined so far help us with this. We only need to be careful to remove the "|" character from our tweet's message to avoid conflicts.
+To populate our tables, we can use plain text [tbl files](http://file.org/extension/tbl). This files represent one entry per row and its attributes are separated by pipes "|", similar to "csv" files. The `toString()` methods we have defined so far and the way we output tweets in `TwitterCollect` help us with this.
 
 However, a `Tweet` object does not include aggregate information. This is gathered only after the Sentiment Analysis returns and it is stored in `Aggregate` objects so we need a way to combine this information. Our final tbl files, one for each table, should look like this:
 
@@ -508,28 +519,9 @@ Notice that the first four fields correspond to a `Tweet` while the last two cor
     562109760238256128|Congratulations|#Patriots|0.8294462782412093
     562109466716692480|Sad|fanatics|-0.40209773927084985
 
-[/code] 
+[/code]
 
-With this two files created, we only need a SQL script to load them:
-
-[code collapse="true" language="sql" title="scripts/load_data.sql"]
-
-    \set t_pwd `pwd`
-    
-    \set input_file '''':t_pwd'/tweet.tbl'''
-    COPY tweet
-    FROM :input_file DELIMITER AS '|' NULL AS 'null'
-    DIRECT;
-    
-    \set input_file '''':t_pwd'/sentiment.tbl'''
-    COPY sentiment (tweet_id, sentiment, topic, score) 
-    FROM :input_file DELIMITER AS '|' NULL AS 'null'
-
-[/code] 
-
-The last step is to copy both SQL scripts and both tbl files into our Vertica server, connect to our database using the adminTools and run the scripts.
-
-[caption id="attachment_2526" align="aligncenter" width="300"]<a href="http://lagunex.com/wp-content/uploads/2015/02/vertica.gif"><img src="http://lagunex.com/wp-content/uploads/2015/02/vertica-300x224.gif" alt="Creating a Vertica database" width="300" height="224" class="size-medium wp-image-2526" /></a> Creating a Vertica database[/caption]
+With this two files created, we are ready to insert data into Vertica.
 
 <!-- }}} -->
 
@@ -537,7 +529,7 @@ The last step is to copy both SQL scripts and both tbl files into our Vertica se
 Connecting Java with Vertica
 ----------------------------
 
-Our database is created and populated. The next step is to write a Java library that communicates with it. For that, we need to create a Vertica account and download the [Vertica JDBC driver](https://my.vertica.com/download-community-edition/#drivers). Once downloaded, install it in your local Maven repository to facilitate its use.
+Our database is created. The next step is to write a Java library that communicates with it to insert values and to query it. For that, we need to create a Vertica account and download the [Vertica JDBC driver](https://my.vertica.com/download-community-edition/#drivers). Once downloaded, install it in your local Maven repository to facilitate its use.
 
 [code collapse="true" light="true" title="command line"]
 
@@ -550,7 +542,7 @@ Our database is created and populated. The next step is to write a Java library 
 
 [/code]
 
-To establish the connection and perform the queries, we are going to use [spring-jdbc](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html). Let's add its dependency and the JDBC driver dependency to `build.gradle`.
+To establish the connection and perform the updates and queries, we are going to use [spring-jdbc](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html). Let's add its dependency and the JDBC driver dependency to `build.gradle`.
 
 [code collapse="true" light="true" title="build.gradle"]
 
@@ -561,9 +553,9 @@ To establish the connection and perform the queries, we are going to use [spring
 
 [/code]
 
-Now we can define a Singleton class to query the database
+Now we can define a Singleton class to update and query the database
 
-[code collapse="true" language="java" title="src/main/java/com/lagunex/vertica/Vertica.java" highlight="16,19,20,24,25,26,27,28,29,30,43"]
+[code collapse="true" language="java" title="src/main/java/com/lagunex/vertica/Vertica.java" highlight="16,19,20,24,25,26,27,28,29,30,44,56"]
 
     // imports are not show for brevity
     public class Vertica {
@@ -584,7 +576,7 @@ Now we can define a Singleton class to query the database
     
         private Vertica() {
             DataSource dataSource = createDataSource();
-            jdbcTemplate = new JdbcTemplate(dataSource); 
+            jdbcTemplate = new JdbcTemplate(dataSource);
         }
     
         private DataSource createDataSource() {
@@ -598,6 +590,19 @@ Now we can define a Singleton class to query the database
             return dataSource;
         }
     
+        public int insertTweetRecord(String tblRecord) {
+            String query = "insert into tweet values (?,?,?,?,?,?)";
+
+            // we should split by "|" only when it is not escaped
+            Object[] args = tblRecord.split(String.format("(?<!\\\\)\\|"));
+
+            // restore the original message with unescaped characters and line breaks
+            String unescapedMessage = StringUtils.unescape(args[1].toString());
+            args[1] = StringUtils.uncollapseLines(unescapedMessage);
+
+            return jdbcTemplate.update(query, args);
+        }
+
         public List<Map<String,Object>> getAggregateTotal(LocalDateTime start, LocalDateTime end) {
             StringBuilder query = new StringBuilder(100);
                 query.append("select aggregate_sentiment as label, count(*) as total ")
@@ -613,14 +618,36 @@ Now we can define a Singleton class to query the database
 
 [/code]
 
-The use of `spring-jdbc` is highlighted on the code. The connection is stablished during `createDataSource()` and the query is executed in `jdbcTemplate.queryForList()`.
+The use of `spring-jdbc` is highlighted on the code. The connection is stablished during `createDataSource()`. We have a sample method to insert a tweet and another one to execute a query. Both method use the same strategy: first, build the query and then, pass the arguments. The actual insertion and query are execute by the `jdbcTemplate` object at the end of both methods.
+
+Notice that in line 41 and 42 we remove the possible escaped character from the tweet's meesage and restore its line breaks in order to store the original message in the database.
+
+After implementing a method to insert values in our database, we can easily write a `main` application to execute it:
+
+[code language="java" title="src/main/java/com/lagunex/vertica/Main.java" collapse="true"]
+
+    // imports are not shown for brevity
+
+    public class Main {
+        public static void main(String[] args) {
+            Vertica vertica = Vertica.getInstance();
+            Console console = System.console();
+            String line = console.readLine();
+            while (line != null) {
+                vertica.insertTweetRecord(line);
+                line = console.readLine();
+            }
+        }
+    }
+
+[/code]
 
 <!-- }}} -->
 
 <!-- {{{ ## Testing our Vertica service -->
 ## Testing our Vertica service
 
-We just defined a service that returns the total number of aggregate sentiments (neutral, positive and negative). Now we write a test class to verify it. `Vertica` reads the connection parameters `hostname`, `database`, `username` and `password` from System Properties as highlighted in lines 24-30. During test, we created a `vertica.properties` file where we add this information. Notice the `loadSystemProperties()` method that reads the file and save its info as System Properties.
+We just defined a service with two methods: one to insert a new tweet and another that returns the total number of aggregate sentiments (neutral, positive and negative). Now we write a test class to verify them. `Vertica` reads the connection parameters `hostname`, `database`, `username` and `password` from System Properties as highlighted in lines 24-30. During test, we created a `vertica.properties` file where we add this information. Notice the `loadSystemProperties()` method that reads the file and save its info as System Properties.
 
 [code collapse="true" light="true" title="src/test/resources/vertica.properties"]
 
@@ -661,6 +688,14 @@ We just defined a service that returns the total number of aggregate sentiments 
                 labels.contains(sample.get("label").toString());
             });
         }
+
+        @Test
+        public void insertTweetRecord() {
+            String tweetToInsert = "1234|nice test with \\| escaped characters|en|2015-02-02 03:00:00|positive|0.89";
+            int result = vertica.insertTweetRecord(tweetToInsert);
+            assertEquals(1, result);
+        }
+
     }
 
 [/code]
@@ -687,7 +722,7 @@ Finally, we can run the test to check our implementation is correct.
 
 [/code]
 
-Our test passed. We can now add more tests and public method to `Vertica.java` to gathered different analytics from our tweets.
+Our test passed. We can now add more tests and public method to `Vertica.java` to gathered different analytics from our tweets and to insert sentiments.
 <!-- }}} -->
 <!-- }}} -->
 
