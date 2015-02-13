@@ -6,7 +6,7 @@ HP IdolOnDemand's API.
 
 The standalone application expects input with the following format:
 
-    0|the text you want to analyse
+    0|the text you want to analyze
     1|another text
     2|I like this format
     3|but I don't like that the example is just four lines long

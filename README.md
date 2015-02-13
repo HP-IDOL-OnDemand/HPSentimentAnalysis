@@ -1,7 +1,7 @@
 DESCRIPTION
 ===========
 
-HPSentimentAnalysis is a Java project with four indenpendent subsystems:
+HPSentimentAnalysis is a Java project with four independent subsystems:
 
 1. TwitterCollect: A system to collect Tweets using Twitter's REST API for search,
    given a search query and some basic parameters.

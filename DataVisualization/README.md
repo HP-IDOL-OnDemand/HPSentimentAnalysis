@@ -6,7 +6,7 @@ of the data.
 
 With DataVisualization you can:
 
-- Set a time range to collect anylitics.
+- Set a time range to collect analytics.
 - See the number of tweets group by aggregate sentiment (neutral, negative or positive) in a pie chart.
 - See the number of tweets from the top 50 topics in a pie chart.
 - See how the average aggregate score evolved during the given time with a line chart.

@@ -45,5 +45,5 @@ RUN
 ===
 
 Do not use `gradle run` to run a project, instead use the executable produced by `gradle installApp` which
-include all dependencies and receives system properties through the JAVA_OPTS enviroment variable. Refer to each
-subprject's README.md for further info
+include all dependencies and receives system properties through the JAVA_OPTS environment variable. Refer to each
+sub-project's README.md for further info

@@ -3,12 +3,12 @@
 <!-- {{{ Introduction -->
 [Sentiment Analysis](http://en.wikipedia.org/wiki/Sentiment_analysis) allows us to determine the "attitude" of a speaker. For instance, we would like to read tweets from an event of our interest to identify which tweets are positive opinions, which are negative opinions and moreover, what's the specific sentiment they are expressing. Is it love, hate, gratefulness?
 
-In this tutorial, we are going to build a Java system with the following functionalities:
+In this tutorial, we are going to build a Java desktop system with the following functionalities:
 
 1. [Extracts Tweets](#twitter-collect) from a specific search using Twitter Search API.
-2. [Analyse them](#sentiment-analysis) using a Sentiment Analysis API.
+2. [Analyze them](#sentiment-analysis) using a Sentiment Analysis API.
 3. [Store them](#vertica) in a database specialized in big data and analytics.
-4. [Provide a GUI](#data-visualization) application to visualize the data analysed.
+4. [Provide a GUI](#data-visualization) application to visualize the data analyzed.
 
 The source code for this project is available as open source. You can download it from its [Bitbucket repository](https://bitbucket.org/lagunex/hpsentimentanalysis).
 
@@ -35,11 +35,11 @@ We use [HP Vertica Analytics Platform](http://www.vertica.com/about/) as our dat
 <!-- {{{ # Set up gradle -->
 # Setting up our project
 
-To keep our system organized, we are going to work with a project composed of four subprojects, one for each of our functionalities.
+To keep our system organized, we are going to work with a project composed of four sub-projects, one for each of our functionalities.
 
 We use Gradle as our build automation system. It allows to work with subproject and takes control over the building process, handling dependencies, compiling, testing and building executables for us. You can install it following [their instructions](http://gradle.org/installation) or, if you have a Mac, just run `brew install gradle`.
 
-The following sections assume that the Gradle multiproject is already set up and that you are in the root directory. We explain this in detail [at the end of the tutorial](#detailed-setup) but right now we want to focus on our system functionalities.
+The following sections assume that the Gradle multi-project is already set up and that you are in the root directory. We explain this in detail [at the end of the tutorial](#detailed-setup) but right now we want to focus on our system functionalities.
 <!-- }}} -->
 
 <!-- {{{ # TwitterCollect -->
@@ -231,7 +231,7 @@ The first functionality of our system is complete. Let's perform Sentiment Analy
 
 [IdolOnDemand](https://www.idolondemand.com) offers the API [analyzesentiment](https://www.idolondemand.com/developer/apis/analyzesentiment) to perform Sentiment Analysis over text. We need to implement a library that encapsulates this service and exposes a Java interface to perform the analysis.
 
-As we can see in its documentation, the service [receives](https://www.idolondemand.com/developer/apis/analyzesentiment#request) the text to analyse and an optional parameter to specify the text's language, in case it is not English. Its [JSON response](https://www.idolondemand.com/developer/apis/analyzesentiment#response) includes the results of the analysis. You can [try the API](https://www.idolondemand.com/developer/apis/analyzesentiment#try) to get familiar with its behaviour. 
+As we can see in its documentation, the service [receives](https://www.idolondemand.com/developer/apis/analyzesentiment#request) the text to analyze and an optional parameter to specify the text's language, in case it is not English. Its [JSON response](https://www.idolondemand.com/developer/apis/analyzesentiment#response) includes the results of the analysis. You can [try the API](https://www.idolondemand.com/developer/apis/analyzesentiment#try) to get familiar with its behavior. 
 
 If you downloaded the source code, go to the `IdolSentimentAnalysis` project before continuing.
 
@@ -267,7 +267,7 @@ To connect with the IdolOnDemand platform, we need an API key. Create an [IdolOn
 <!-- {{{ ### Consuming a REST service -->
 ### Consuming a REST service
 
-Following the same strategy we used for `TwitterClient`, we are going to rely on third-party libraries to stablish the HTTP connection with the IdolOnDemand platform and parse its JSON into a POJO. In this case we will use [spring-web](http://spring.io/guides/gs/consuming-rest/) and its `RestTemplate` to consume the REST service and [jackson-databind](https://github.com/FasterXML/jackson-databind/) (used internally by `RestTemplate`) to parse the response. Therefore we need to add these dependencies to our `build.gradle` script:
+Following the same strategy we used for `TwitterClient`, we are going to rely on third-party libraries to establish the HTTP connection with the IdolOnDemand platform and parse its JSON into a POJO. In this case we will use [spring-web](http://spring.io/guides/gs/consuming-rest/) and its `RestTemplate` to consume the REST service and [jackson-databind](https://github.com/FasterXML/jackson-databind/) (used internally by `RestTemplate`) to parse the response. Therefore we need to add these dependencies to our `build.gradle` script:
 
 [code collapse="true" light="yes" title="build.gradle"]
 
@@ -550,7 +550,7 @@ Our database is created and populated. The next step is to write a Java library 
 
 [/code]
 
-To stablish the connection and perform the queries, we are going to use [spring-jdbc](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html). Let's add its dependency and the JDBC driver dependency to `build.gradle`.
+To establish the connection and perform the queries, we are going to use [spring-jdbc](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html). Let's add its dependency and the JDBC driver dependency to `build.gradle`.
 
 [code collapse="true" light="true" title="build.gradle"]
 
@@ -710,7 +710,7 @@ First of all, we need to add a dependency to our VerticaConnection in `build.gra
 
 The GUI application has the following functionality:
 
-- Set a time range to collect anylitics.
+- Set a time range to collect analytics.
 - See the number of tweets group by aggregate sentiment (neutral, negative or positive) in a pie chart.
 - See the number of tweets from the top 15 sentiments in a pie chart.
 - See how the average aggregate score evolved during the given time with a line chart.
@@ -719,7 +719,7 @@ The GUI application has the following functionality:
 
 To create the charts, we use [JavaFX Charts](http://docs.oracle.com/javase/8/javafx/user-interface-tutorial/charts.htm#JFXUI577) which are UI components already available to display the data.
 
-A GUI application usually involves a lot of code to set up the different components and bind them to their corresponding behaviour. Giving a detailed explanation of how to create one goes beyond the scope of this tutorial. Therefore, we will only describe the components used and point to additional resources that can help you with the details.
+A GUI application usually involves a lot of code to set up the different components and bind them to their corresponding behavior. Giving a detailed explanation of how to create one goes beyond the scope of this tutorial. Therefore, we will only describe the components used and point to additional resources that can help you with the details.
 
 - The application shows the data using a [TableView](http://docs.oracle.com/javafx/2/ui_controls/table-view.htm).
 - The data seen in the table is also displayed as charts using [Pie Charts](http://docs.oracle.com/javase/8/javafx/user-interface-tutorial/pie-chart.htm#CIHFDADD) and [Line Charts](http://docs.oracle.com/javase/8/javafx/user-interface-tutorial/line-chart.htm#CIHGBCFI), each representing a different analytic from the data.
@@ -732,10 +732,10 @@ The following GIF image illustrates the main functionality of our application.
 
 <!-- }}} -->
 
-<!-- {{{ Multiproject setup -->
-# <a name="detailed-setup"></a>Setting up our gradle multiproject
+<!-- {{{ Multi-project setup -->
+# <a name="detailed-setup"></a>Setting up our gradle multi-project
 
-We decided to split each functionality in its own subproject. After all, they are independent and can be decoupled easily. To work with a multiproject, we create a subdirectory for each subproject and add a `settings.gradle` file in our root directory.
+We decided to split each functionality in its own subproject. After all, they are independent and can be decoupled easily. To work with a multi-project, we create a subdirectory for each subproject and add a `settings.gradle` file in our root directory.
 
 [code collapse="true" light="true" title="settings.gradle"]
 
@@ -771,7 +771,7 @@ This is the final layout for our system:
 
 [/code]
 
-The file `common.gradle` includes information that is shared among all subprojects and it's referenced in the root `build.gradle`.
+The file `common.gradle` includes information that is shared among all sub-projects and it's referenced in the root `build.gradle`.
 
 [code collapse="true" light="true" title="build.gradle" highlight="2"]
 

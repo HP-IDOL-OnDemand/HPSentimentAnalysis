@@ -8,7 +8,7 @@ SOURCE DESCRIPTION
 
 `Vertica` is the class that creates the data source, connects with Vertica and performs the queries.
 
-It uses Spring's SimpleDriverDataSource to stablish the connection and Spring's JdbcTemplate to query the database.
+It uses Spring's SimpleDriverDataSource to establish the connection and Spring's JdbcTemplate to query the database.
  
 ADDITIONAL DIRECTORIES
 ======================

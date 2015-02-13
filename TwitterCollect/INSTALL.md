@@ -14,7 +14,7 @@ this during testing.
 
 Rename (or make a copy) the file `twitter4j.properties` and write your consumer key and secret.
 
-The template file includes additional properties, two of them are also mandatory to stablish a connection with Twitter.
+The template file includes additional properties, two of them are also mandatory to establish a connection with Twitter.
 
 RUN
 ===
