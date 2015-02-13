@@ -1,5 +1,6 @@
 package com.lagunex.twitter;
 
+import com.lagunex.util.StringUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.function.Consumer;
@@ -118,7 +119,18 @@ public class Main {
     }
 
     private void queryTwitter() {
-        Consumer<Tweet> printTweetToOutput = tweet -> output.println(tweet);
+        Consumer<Tweet> printTweetToOutput = tweet -> {
+            String singleLineMessage = StringUtils.collapseLines(tweet.getMessage());
+            output.println(
+                String.join(StringUtils.SEPARATOR, 
+                    String.valueOf(tweet.getId()),
+                    StringUtils.escape(singleLineMessage),
+                    tweet.getLanguage(),
+                    StringUtils.formatDateTime(tweet.getCreatedAt())
+                )
+            );
+        };
+        
 		if (sinceId > 0) {
 			client.searchSince(query, sinceId, printTweetToOutput);
 		} else if (maxId > 0) {

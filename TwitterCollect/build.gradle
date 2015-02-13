@@ -6,4 +6,5 @@ applicationDefaultJvmArgs = [
 
 dependencies {
     compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.2'
+    compile project(":common")
 }

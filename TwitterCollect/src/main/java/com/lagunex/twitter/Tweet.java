@@ -13,9 +13,6 @@ import twitter4j.Status;
  * @author Carlos A. Henríquez Q. <carlos.henriquez@lagunex.com>
  */
 public class Tweet {
-    private static final char RESERVED_CHAR = '|';
-    private static final char RESERVED_CHAR_REPLACEMENT = ' ';
-    
     private final long id;
     private final String message;
     private final LocalDateTime createdAt;
@@ -23,23 +20,9 @@ public class Tweet {
 
     public Tweet(Status s) {
 	    id = s.getId();
-        message = s.getText().replace(RESERVED_CHAR, RESERVED_CHAR_REPLACEMENT);
+        message = s.getText();
         language = s.getLang();
         createdAt = LocalDateTime.ofInstant(s.getCreatedAt().toInstant(),ZoneOffset.UTC);
-    }
-    
-    /**
-     * 
-     * @return id|message|language|createdAt 
-     */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getId()).append(RESERVED_CHAR)
-          .append(getMessage()).append(RESERVED_CHAR)
-          .append(getLanguage()).append(RESERVED_CHAR)
-          .append(getCreatedAt());
-        return sb.toString().replace('\n', ' ');
     }
     
     public long getId() {
@@ -49,7 +32,7 @@ public class Tweet {
     public String getMessage() {
         return message;
     }
-    
+
     public String getLanguage() {
         return language;
     }
