@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 
 public class VerticaTest {
     Vertica vertica;
@@ -177,5 +178,45 @@ public class VerticaTest {
     public void getTweetsWithTimeWithInvalidParameter() {
         String window = "invalid datetime string";
         assertEquals(0,vertica.getTweetsWithTime(window).size()); 
+    }
+
+    @Test @Ignore(value = "make sure the id does not exist in the database before running the test")
+    public void insertTweetRecord() {
+        String tweetToInsert = "1234|nice test with \\| and \\n|en|2015-02-02 03:00:00|neutral|0.89";
+        int result = vertica.insertTweetRecord(tweetToInsert);
+        assertEquals(1, result);
+    }
+
+    @Test @Ignore(value = "make sure the id does not exist in the database before running the test")
+    public void insertTweetRecordWithoutAggregate() {
+        String tweetToInsert = "1235|nice test with \\| and \\n|en|2015-02-02 03:00:00";
+        String separator = "|";
+        int result = vertica.insertTweetRecord(tweetToInsert, separator);
+        assertEquals(1, result);
+    }
+
+    @Test @Ignore(value = "make sure the referenced tweet exists in the database before running the test")
+    public void insertSentimentRecord() {
+        String tweetToInsert = "1234|nice|test|0.89";
+        int result = vertica.insertSentimentRecord(tweetToInsert);
+        assertEquals(1, result);
+    }
+
+    @Test @Ignore(value = "make sure the referenced tweet exists in the database before running the test")
+    public void insertSentimentRecordWithNullSentiment() {
+        String tweetToInsert = "1234|null|test|0.89";
+        String separator = "|";
+        String nullValue = null;
+        int result = vertica.insertSentimentRecord(tweetToInsert, separator, String.valueOf(nullValue));
+        assertEquals(1, result);
+    }
+
+    @Test @Ignore(value = "make sure the referenced tweet exists in the database before running the test")
+    public void insertSentimentRecordWithNullTopic() {
+        String tweetToInsert = "1234|nice|null|0.89";
+        String separator = "|";
+        String nullValue = null;
+        int result = vertica.insertSentimentRecord(tweetToInsert, separator, String.valueOf(nullValue));
+        assertEquals(1, result);
     }
 }

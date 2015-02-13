@@ -1,7 +1,4 @@
-mainClassName = ''
-task installApp.doLast {
-    delete destinationDir.getAbsolutePath()+"/bin" // There are no executables
-}
+mainClassName = 'com.lagunex.vertica.Main'
 
 applicationDistribution.from(projectDir) {
   include "scripts/*"
@@ -11,6 +8,7 @@ applicationDistribution.from(projectDir) {
 dependencies {
     compile group: 'com.vertica', name: 'vertica-jdbc', version:'7.1.1.0'
     compile 'org.springframework:spring-jdbc:4.1.4.RELEASE'
+    compile project(':common')
 }
 
 task installJdbcLocally(type:Exec) {

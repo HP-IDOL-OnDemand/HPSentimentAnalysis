@@ -1,10 +1,12 @@
 package com.lagunex.vertica;
 
+import com.lagunex.util.StringUtils;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  * Singleton that connects with the Vertica database and performs query to retrieve analytics
+ * or inserts new records in the database
  * 
  * This class assumes that the following system properties are defined:
  * 
@@ -86,6 +89,89 @@ public class Vertica {
         return dataSource;
     }
 
+    /**
+     * 
+     * @param tblRecord line with the info to insert. Each column separated by separator
+     * @param separator String that represents the column separator in tblRecord
+     * @return number of rows inserted
+     */
+    public int insertTweetRecord(String tblRecord, String separator) {
+        String query = "insert into tweet values (?,?,?,?,?,?)";
+
+        // we should split by separator only when it is not escaped
+        Object[] args = tblRecord.split(String.format("(?<!\\\\)\\%s", separator));
+        
+        if (args.length != 6 && args.length != 4) { // invalid format
+            LOGGER.log(Level.WARNING, "Invalid line: {0}", tblRecord);
+            return 0;
+        }
+      
+        // Restored the original message with unescaped characters and line breaks
+        String unescapedMessage = StringUtils.unescape(args[1].toString(), separator);
+        args[1] = StringUtils.uncollapseLines(unescapedMessage);
+        if (args.length == 4) { // does not include aggregate data
+            query = "insert into tweet (id, message, lang, created_at) values (?,?,?,?)";
+        }
+        
+        return insertRecord(query, args);
+    }
+
+    /**
+     * Insert a record following the insert query and returns the numbers of rows inserted
+     * 
+     * @param insert query to build the statement
+     * @param args parameters to pass to the query to execute the insert, the must have a SQL equivalent
+     * @return number of records inserted
+     */
+    private int insertRecord(String insert, Object... args) {
+        int result = 0;
+        try {
+            result = jdbcTemplate.update(insert, args);
+        } catch (DataAccessException ex) {
+            LOGGER.log(Level.WARNING, "{0} {1}", new Object[]{ex.getMessage(), Arrays.toString(args)});
+        }
+        return result;
+    }
+    
+    /**
+     * 
+     * @param tblRecord line with the info to insert. Each column separated by |
+     * @return number of rows inserted
+     */
+    public int insertTweetRecord(String tblRecord) {
+        return insertTweetRecord(tblRecord, StringUtils.SEPARATOR);
+    }
+    
+    /**
+     * Insert a record into the sentiment table
+     * @param tblRecord line with the info to insert. Each column separated by separator
+     * @param separator string that represents the column separator in tblRecord
+     * @param nullValue string that represents the null value in tblRecord
+     * @return number of rows inserted
+     */
+    public int insertSentimentRecord(String tblRecord, String separator, String nullValue) {
+        String query = "insert into sentiment (tweet_id, sentiment, topic, score) values (?,?,?,?)";
+
+        // we should split by separator only when it is not escaped
+        Object[] args = tblRecord.split(String.format("(?<!\\\\)\\%s", separator));
+        args[1] = nullValue.equals(args[1]) ? null : args[1];
+        args[2] = nullValue.equals(args[2]) ? null : args[2];
+        
+        return insertRecord(query, args);
+    }
+
+    /**
+     * Insert a record in the sentiment table, columns are split by "|" and "null" columns
+     * are added as NULL
+     * 
+     * @param tblRecord line with the info to insert. Each column separated by separator
+     * @return number of rows inserted
+     */
+    public int insertSentimentRecord(String tblRecord) {
+        String nullValue = null;
+        return insertSentimentRecord(tblRecord, StringUtils.SEPARATOR, String.valueOf(nullValue));
+    }
+    
     /**
      * Return the aggregate sentiment (negative, neutral or positive) of tweets sent during the date range 
      * @param start inclusive
