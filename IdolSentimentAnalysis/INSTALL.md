@@ -6,7 +6,7 @@ INSTALL
 TEST AND RUNTIME REQUIREMENTS
 =============================
 
-Because this system connects with IBM IdolOnDemand's API, you need to provide your API key during testing and at
+Because this system connects with HP IdolOnDemand's API, you need to provide your API key during testing and at
 runtime.
 
 `src/test/resources/idol.properties.template` is a template file that you can use to facilitate this during testing.

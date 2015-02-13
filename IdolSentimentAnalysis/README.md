@@ -2,7 +2,7 @@ DESCRIPTION
 ===========
 
 IdolSentimentAnalysis provides a library and a CLI application to perform sentiment analysis using
-IBM IdolOnDemand's API.
+HP IdolOnDemand's API.
 
 The standalone application expects input with the following format:
 
@@ -42,7 +42,7 @@ To connect with the external REST API, we use Spring's `RestTemplate` with `jack
 REQUIREMENTS
 ============
 
-Because this system connects with IBM IdolOnDemand's API, you need to provide your API key during testing and at
+Because this system connects with HP IdolOnDemand's API, you need to provide your API key during testing and at
 runtime.
 
 This system depends on `spring-web` and `jackson-databind` to compile. Check `build.gradle` for details
