@@ -25,3 +25,16 @@ this during testing.
 Rename (or make a copy) the file `vertica.properties` and write your connection details.
 
 Also, the tests assume the connection with Vertica is possible and the database is populated with the sample files.
+
+RUN
+===
+
+Once installed,
+
+    JAVA_OPTS="-Dvertica.hostname=192.168.1.17 -Dvertica.database=topcoder -Dvertica.username=dbadmin -Dvertica.password=password" \
+    build/install/VerticaConnection/bin/VerticaConnection -h
+
+On Windows
+
+    set JAVA_OPTS=-Dvertica.hostname=192.168.1.17 -Dvertica.database=topcoder -Dvertica.username=dbadmin -Dvertica.password=password
+    build/install/VerticaConnection/bin/VerticaConnection.bat -h

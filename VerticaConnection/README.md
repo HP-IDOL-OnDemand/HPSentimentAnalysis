@@ -1,7 +1,36 @@
 DESCRIPTION
 ===========
 
-VerticaConnection provides a library to connect and query a Vertica database using Vertica's jdbc driver. 
+VerticaConnection provides a library to connect, query and update a Vertica database using Vertica's jdbc driver.
+It also includes a command line application to add records into the database reading from standard input or from a file.
+
+The standalone application expects to read from standard input or a file lines with the following format:
+
+    column1|column2|...|columnN
+
+You can add values into the tables tweet or sentiment, depending on what you pass as command line argument.
+
+For the tweet table, a row can either be
+
+    id|message|language|created_at|aggregate_sentiment|aggregate_score
+
+or
+
+    id|message|language|created_at
+
+in case you do not have the aggregate information. `created_at` is expected to be formatted as "yyyy-MM-dd HH:mm:ss" 
+and the message column is expected to have the "|" charater escaped and line breaks replaced by their string 
+representation "\n"
+
+For the sentiment table, rows must have the format
+
+    tweet_id|sentiment|topic|score
+
+In order to pass NULL values to `sentiment` or `topic`, use the string "null", e.g.
+
+    121231234|love|null|0.99
+
+At the end, you will receive the number of rows inserted.
 
 SOURCE DESCRIPTION
 ==================
@@ -9,6 +38,19 @@ SOURCE DESCRIPTION
 `Vertica` is the class that creates the data source, connects with Vertica and performs the queries.
 
 It uses Spring's SimpleDriverDataSource to establish the connection and Spring's JdbcTemplate to query the database.
+
+RUN
+===
+
+Once installed,
+
+    JAVA_OPTS="-Dvertica.hostname=192.168.1.17 -Dvertica.database=topcoder -Dvertica.username=dbadmin -Dvertica.password=password" \
+    build/install/VerticaConnection/bin/VerticaConnection -h
+
+On Windows
+
+    set JAVA_OPTS=-Dvertica.hostname=192.168.1.17 -Dvertica.database=topcoder -Dvertica.username=dbadmin -Dvertica.password=password
+    build/install/VerticaConnection/bin/VerticaConnection.bat -h
  
 ADDITIONAL DIRECTORIES
 ======================
